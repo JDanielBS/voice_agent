@@ -13,9 +13,12 @@ con una cola explícita, que sí cierra.
 """
 from __future__ import annotations
 
+import logging
 import os
 
 import azure.cognitiveservices.speech as speechsdk
+
+log = logging.getLogger("src.voice.tts")
 
 TTS_TIMEOUT_S = 3  # Regla 12
 
@@ -45,7 +48,7 @@ def synthesize_stream(text: str):
     result = synthesizer.speak_text_async(text).get()
 
     if result.reason != speechsdk.ResultReason.SynthesizingAudioCompleted:
-        print(f"[TTS] Síntesis no completada: {result.reason}")
+        log.warning("Síntesis no completada: %s", result.reason)
         return
 
     stream = speechsdk.AudioDataStream(result)

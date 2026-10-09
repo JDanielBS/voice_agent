@@ -7,8 +7,9 @@ y empuja a la UI la transcripción diarizada, el sentimiento y el audio de la re
 from __future__ import annotations
 
 import asyncio
+import logging
 import os
-import traceback
+import time
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -18,11 +19,15 @@ from fastapi.middleware.cors import CORSMiddleware
 
 load_dotenv()  # Cargar variables de entorno antes de importar modulos que usan os.environ
 
+from src.logging_setup import setup_logging
 from src.agent.agent import process_turn
 from src.agent.state import manager as state_manager
 from src.voice.stt import STT_TIMEOUT_S, StreamingSTT
 from src.voice.tts import TTS_TIMEOUT_S, synthesize_stream
 from src.voice.vad import VAD
+
+setup_logging()
+log = logging.getLogger("src.voice.server")
 
 app = FastAPI(title="Voice Agent API")
 
@@ -56,11 +61,11 @@ def _readiness() -> dict:
 
 _ready = _readiness()
 if not _ready["ok"]:
-    print("[BOOT] FALTA CONFIGURACIÓN — el agente no podrá responder:")
-    for item in _ready["faltan"]:
-        print(f"[BOOT]   - {item}")
+    log.error("FALTA CONFIGURACIÓN — el agente no podrá responder: %s",
+              "; ".join(_ready["faltan"]))
 else:
-    print("[BOOT] Configuración completa.")
+    log.info("Configuración completa; %d variables requeridas presentes.",
+             len(_REQUIRED_ENV))
 
 @app.get("/")
 async def panel():
@@ -93,6 +98,10 @@ def _next_chunk(gen):
 
 async def _play_tts(ws: WebSocket, text: str) -> None:
     """Sintetiza y envía el audio (mulaw 8kHz) como frames binarios al navegador."""
+    started = time.perf_counter()
+    first_at: float | None = None
+    frames = 0
+    sent = 0
     gen = synthesize_stream(text)
     try:
         while True:
@@ -101,25 +110,39 @@ async def _play_tts(ws: WebSocket, text: str) -> None:
                     asyncio.to_thread(_next_chunk, gen), timeout=TTS_TIMEOUT_S
                 )
             except asyncio.TimeoutError:
-                print("[TTS] Timeout esperando audio; se corta la respuesta.")
+                log.warning("TTS: timeout esperando audio; se corta la respuesta.")
                 break
             except Exception as e:
-                print(f"[TTS] Error: {e}")
+                log.warning("TTS: error generando audio: %s", e)
                 break
 
             if chunk is _TTS_DONE:
                 break
             if chunk:
+                if first_at is None:
+                    first_at = time.perf_counter()
                 try:
                     await ws.send_bytes(chunk)
+                    frames += 1
+                    sent += len(chunk)
                 except Exception:
                     # El socket se cerró mientras enviábamos
+                    log.info("TTS: socket cerrado durante el envío (frames=%d)", frames)
                     break
     finally:
         try:
             gen.close()
         except Exception:
             pass
+
+    elapsed_ms = (time.perf_counter() - started) * 1000
+    first_ms = (first_at - started) * 1000 if first_at else None
+    log.info(
+        "TTS: %d frames, %d bytes, primer audio en %s ms, total %d ms",
+        frames, sent,
+        f"{first_ms:.0f}" if first_ms is not None else "-",
+        round(elapsed_ms),
+    )
 
 @app.websocket("/demo")
 async def demo_endpoint(ws: WebSocket):
@@ -130,32 +153,46 @@ async def demo_endpoint(ws: WebSocket):
     vad = VAD()
     stt = StreamingSTT()
     stt.start()
-    
-    print(f"[WS] Nueva conexión iniciada: {session_id}")
+
+    log.info("WS: conexión iniciada session=%s", session_id)
 
     try:
         while True:
             try:
                 pcm = await ws.receive_bytes()  # PCM 16-bit 8kHz mono LE del navegador
             except WebSocketDisconnect:
-                print(f"[WS] Desconexión (receive): {session_id}")
+                log.info("WS: desconexión (receive) session=%s", session_id)
                 break
 
             stt.push_chunk(pcm)
-            if vad.process(pcm) != "speech_end":
+            event = vad.process(pcm)
+            if event == "speech_start":
+                log.debug("VAD: inicio de habla session=%s nivel=%.0f",
+                          session_id, vad.level)
+            if event != "speech_end":
                 continue
+
+            log.info(
+                "Turno: fin de habla session=%s nivel=%.0f ruido=%.0f umbral_inicio=%.0f",
+                session_id, vad.level, vad.noise, vad.start_threshold,
+            )
 
             # Regla 12: la transcripción no puede colgar el turno. Si Azure no
             # responde en STT_TIMEOUT_S (+1 de margen) el turno se descarta y la
             # sesión sigue escuchando.
+            t_stt = time.perf_counter()
             try:
                 text = await asyncio.wait_for(
                     asyncio.to_thread(stt.finish_and_get_text),
                     timeout=STT_TIMEOUT_S + 1,
                 )
             except asyncio.TimeoutError:
-                print(f"[STT] Timeout esperando la transcripción en {session_id}.")
+                log.warning("STT: timeout esperando la transcripción session=%s",
+                            session_id)
                 text = ""
+            log.info("STT: %d ms session=%s texto=%r",
+                     round((time.perf_counter() - t_stt) * 1000), session_id,
+                     text[:200])
             # reiniciar STT/VAD para el próximo turno
             stt = StreamingSTT()
             stt.start()
@@ -164,8 +201,6 @@ async def demo_endpoint(ws: WebSocket):
             if not text.strip():
                 continue
 
-            print(f"[WS] Usuario ({session_id}): {text}")
-            
             try:
                 await ws.send_json({"role": "user", "text": text})
             except WebSocketDisconnect:
@@ -173,16 +208,17 @@ async def demo_endpoint(ws: WebSocket):
 
             # Regla 7: ningún fallo del turno puede terminar en silencio ni
             # tumbar la llamada. Se responde con la frase fija y se sigue.
+            t_agent = time.perf_counter()
             try:
                 reply = await asyncio.to_thread(process_turn, session_id, text)
                 sentimiento = state_manager.get(session_id).last_sentimiento
             except Exception:
-                print(f"[WS] Error procesando el turno de {session_id}:")
-                traceback.print_exc()
+                log.exception("Agente: error procesando el turno session=%s", session_id)
                 reply, sentimiento = _FALLBACK, "neutro"
-            
-            print(f"[WS] Agente ({session_id}): {reply} [{sentimiento}]")
-            
+            log.info("Agente: %d ms session=%s sentimiento=%s respuesta=%r",
+                     round((time.perf_counter() - t_agent) * 1000),
+                     session_id, sentimiento, reply[:300])
+
             try:
                 await ws.send_json({"role": "agent", "text": reply, "sentimiento": sentimiento})
                 await _play_tts(ws, reply)
@@ -190,10 +226,9 @@ async def demo_endpoint(ws: WebSocket):
                 break
 
     except Exception:
-        print(f"[WS] Error fatal en {session_id}:")
-        traceback.print_exc()
+        log.exception("WS: error fatal session=%s", session_id)
     finally:
-        print(f"[WS] Limpiando sesión {session_id}")
+        log.info("WS: cerrando sesión session=%s", session_id)
         stt.cancel()
         state_manager.get(session_id).clear()
 

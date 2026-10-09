@@ -11,8 +11,12 @@ número huérfano.
 from __future__ import annotations
 
 import json
+import logging
 import os
+import time
 from openai import AzureOpenAI
+
+log = logging.getLogger("src.agent.agent")
 
 from src.agent.state import manager as state_manager
 from src.agent.prompt import generate_prompt
@@ -359,6 +363,7 @@ def process_turn(session_id: str, user_text: str) -> str:
 
     deployment = os.environ["AZURE_OPENAI_DEPLOYMENT"]
 
+    t_llm = time.perf_counter()
     try:
         response = client.chat.completions.create(
             model=deployment,
@@ -367,9 +372,9 @@ def process_turn(session_id: str, user_text: str) -> str:
             tool_choice="auto"
         )
     except Exception as e:
-        import sys
-        print(f"Azure OpenAI ERROR: {e}", file=sys.stderr)
+        log.error("Azure OpenAI ERROR: %s", e)
         return "Hubo un error de conexión con el motor de inteligencia artificial."
+    log.info("LLM intención+tool-calling: %d ms", round((time.perf_counter() - t_llm) * 1000))
 
     msg = response.choices[0].message
     if not msg.tool_calls:
@@ -405,10 +410,14 @@ def process_turn(session_id: str, user_text: str) -> str:
         sentimiento = args.pop("sentimiento", sentimiento) or sentimiento
         args.pop("necesita_interpretacion", None)  # ya no se usa: el redactor corre siempre
 
+        log.info("tool: %s args=%s", func_name,
+                 json.dumps(args, ensure_ascii=False)[:300])
+
         try:
             respuestas.append(_execute_tool(func_name, args, schema))
             _apply_state(state, func_name, args, resolved_filters)
         except Exception as e:
+            log.exception("tool: error ejecutando %s", func_name)
             return f"Hubo un problema ejecutando la consulta: {e}"
 
     datos = render.componer(respuestas)
@@ -416,7 +425,10 @@ def process_turn(session_id: str, user_text: str) -> str:
     # Segunda pasada SIEMPRE: el LLM redacta la respuesta final hablada a
     # partir de los datos deterministas que devolvieron las tools. Las cifras
     # y nombres salen EXCLUSIVAMENTE de `datos` (regla 1), nunca del modelo.
+    t_red = time.perf_counter()
     final_ans = _redactar(client, deployment, user_text, datos)
+    log.info("LLM redactor: %d ms -> %r",
+             round((time.perf_counter() - t_red) * 1000), final_ans[:200])
 
     final_ans = render.aplicar_tono(final_ans, sentimiento)
     state.last_response = final_ans
