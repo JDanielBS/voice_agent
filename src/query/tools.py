@@ -11,7 +11,6 @@ from __future__ import annotations
 
 import json
 import os
-import re
 from pathlib import Path
 
 DATA_DIR = Path(__file__).resolve().parents[2] / "data"
@@ -49,9 +48,21 @@ def _exigir_columna(cols: dict, name: str) -> dict:
 
 
 def _exigir_dimension(cols: dict, name: str) -> dict:
+    """Para group_by: agrupar por un identificador de alta cardinalidad
+    (nombre, email, código) no tiene sentido por voz, exploraría miles de
+    grupos. Esto se mantiene restringido a dimensión cerrada/abierta."""
     col = _exigir_columna(cols, name)
     if col["role"] not in DIM_ROLES:
-        raise ValueError(f"{name!r} no es dimensión filtrable (rol: {col['role']})")
+        raise ValueError(f"{name!r} no es dimensión agrupable (rol: {col['role']})")
+    return col
+
+
+def _exigir_filtrable(cols: dict, name: str) -> dict:
+    """Para WHERE: filtrar por un identificador exacto (código, email,
+    gerente) sí tiene sentido (una igualdad, no una explosión de grupos)."""
+    col = _exigir_columna(cols, name)
+    if col["role"] not in (*DIM_ROLES, "identifier"):
+        raise ValueError(f"{name!r} no es filtrable (rol: {col['role']})")
     return col
 
 
@@ -81,7 +92,7 @@ def _where(filters: dict, cols: dict) -> tuple[str, list]:
     """
     clauses, params = [], []
     for k, v in (filters or {}).items():
-        _exigir_dimension(cols, k)
+        _exigir_filtrable(cols, k)
         clauses.append("data @> %s::jsonb")
         params.append(json.dumps({k: str(v)}, ensure_ascii=False))
     return (" WHERE " + " AND ".join(clauses)) if clauses else "", params
@@ -89,41 +100,28 @@ def _where(filters: dict, cols: dict) -> tuple[str, list]:
 
 # ── Columnas buscables para lookup ───────────────────────────────────────────
 
-_EMAIL = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
-_FONO = re.compile(r"^[\d\s+\-()./]{6,}$")
-
-
-def _es_contacto(samples: list) -> bool:
-    """¿La mayoría de las muestras parecen email o teléfono? Sin muestras no se expone."""
-    vals = [str(s).strip() for s in (samples or []) if s is not None]
-    if not vals:
-        return True
-    def contacto(v: str) -> bool:
-        return bool(_EMAIL.match(v)) or (
-            bool(_FONO.match(v)) and sum(c.isdigit() for c in v) >= 6)
-    return sum(map(contacto, vals)) / len(vals) >= 0.5
-
-
 def search_columns(schema: dict | None = None) -> list[str]:
-    """Identifiers con muestras de texto libre, menos emails/teléfonos.
-
-    La decisión sale de los datos (role + sample_values + patrón de contacto),
-    no de nombres hardcodeados: sirve para cualquier dataset.
-    """
+    """Todos los identificadores (nombre, email, teléfono, código, gerente):
+    el dataset es público (REPS/datos.gov.co), se expone todo sin filtrar
+    por tipo de columna. La decisión sale solo del rol en schema.json."""
     schema = schema or load_schema()
-    return [c["name"] for c in schema["columns"]
-            if c["role"] == "identifier"
-            and c.get("sample_values")
-            and not _es_contacto(c["sample_values"])]
+    return [c["name"] for c in schema["columns"] if c["role"] == "identifier"]
 
 
-def _documento(col_names: list[str]) -> tuple[str, list]:
-    """Expresión tsvector sobre las columnas buscables. Claves como placeholders."""
+def _documento_texto(col_names: list[str]) -> tuple[str, list]:
+    """Concatenación plana de las columnas buscables, sin tsvector: la usa
+    tanto _documento() (FTS) como el fallback de trigramas (texto plano)."""
     partes, params = [], []
     for name in col_names:
         partes.append("coalesce(data->>%s, '')")
         params.append(name)
-    return "to_tsvector('spanish', " + " || ' ' || ".join(partes) + ")", params
+    return " || ' ' || ".join(partes), params
+
+
+def _documento(col_names: list[str]) -> tuple[str, list]:
+    """Expresión tsvector sobre las columnas buscables. Claves como placeholders."""
+    texto, params = _documento_texto(col_names)
+    return f"to_tsvector('spanish', {texto})", params
 
 
 def build_search_index_sql(schema: dict | None = None) -> str:
@@ -141,6 +139,28 @@ def build_search_index_sql(schema: dict | None = None) -> str:
             f"USING GIN (to_tsvector('spanish', {doc}))")
 
 
+UMBRAL_TRGM = 0.3
+
+
+def build_trgm_index_sql(schema: dict | None = None) -> list[str]:
+    """Un índice de trigramas POR columna buscable (regla 6 de CLAUDE.md: el
+    resolver difuso no es opcional, el STT a 8 kHz se equivoca en nombres
+    propios). Un solo índice sobre el documento concatenado no sirve aquí:
+    el operador `%` (y el GUC pg_trgm.similarity_threshold, default 0.3,
+    coincide con UMBRAL_TRGM) solo usa el índice si compara contra la MISMA
+    expresión indexada; con columnas separadas, el planner puede resolver un
+    OR de varias con bitmap index scan en vez de escanear toda la tabla.
+    Requiere `CREATE EXTENSION IF NOT EXISTS pg_trgm` una vez en el montaje."""
+    cols = search_columns(schema)
+    if not cols:
+        raise ValueError("schema sin columnas buscables para lookup")
+    return [
+        f"CREATE INDEX IF NOT EXISTS idx_raw_records_trgm_{c} ON raw_records "
+        f"USING GIN ((data->>'{c}') gin_trgm_ops)"
+        for c in cols  # c sale de schema.json
+    ]
+
+
 # ── Las 4 tools ──────────────────────────────────────────────────────────────
 
 def aggregate_sql(measure: str, group_by: list[str], filters: dict,
@@ -150,7 +170,10 @@ def aggregate_sql(measure: str, group_by: list[str], filters: dict,
     _exigir_medida(cols, measure)
     group_by = list(group_by or [])
     for g in group_by:
-        _exigir_dimension(cols, g)
+        # Agrupar por un identificador (ej. nombre_prestador) es válido para
+        # un RANKING: aggregate siempre acota con ORDER BY ... LIMIT top_n,
+        # nunca enumera sin límite (eso es list_values, que sigue estricto).
+        _exigir_filtrable(cols, g)
     where, params = _where(filters, cols)
 
     group_cols, group_params = [], []
@@ -200,13 +223,58 @@ def lookup_sql(text_query: str, filters: dict, limit: int = MAX_RESULTS,
     return sql, doc_params + [q] + params + doc_params + [q, _pin(limit)]
 
 
+def lookup_fuzzy_sql(text_query: str, filters: dict, limit: int = MAX_RESULTS,
+                     schema: dict | None = None):
+    """Fallback cuando la búsqueda exacta/FTS no encuentra nada: similitud de
+    trigramas (pg_trgm) tolera errores fonéticos del STT en nombres propios
+    ("saida bibiana" por "Saida Viviana"), que ts_rank no detecta porque
+    exige coincidencia de palabra completa, no distancia de edición.
+
+    similarity() por COLUMNA, no sobre el documento concatenado: comparar
+    "saida bibiana..." contra gerente+email+dirección+nombre... a la vez
+    diluye la razón de trigramas compartidos (similarity cae de 0.70 a casi
+    0 solo por el ruido de las demás columnas). GREATEST() toma la mejor
+    columna, igual que ts_rank hace implícitamente al tokenizar por palabra.
+    """
+    if not (text_query or "").strip():
+        raise ValueError("text_query vacío")
+    schema = schema or load_schema()
+    cols = search_columns(schema)
+    if not cols:
+        raise ValueError("schema sin columnas buscables para lookup")
+    q = text_query.strip()
+    # WHERE con `%` sobre data->>'col' LITERAL (no placeholder): el índice
+    # GIN por columna se construyó sobre esa misma expresión exacta. Si la
+    # clave viajara como %s, el planner no puede casar el índice y hace seq
+    # scan completo (2.2s medidos sobre 38k filas, por encima del timeout).
+    # c sale de schema.json, ya validado -> interpolar es seguro.
+    ors = " OR ".join(f"(data->>'{c}') %% %s" for c in cols)
+    or_params = [q for _ in cols]
+    sims = ", ".join(f"similarity(coalesce(data->>'{c}', ''), %s)" for c in cols)
+    sim_params = [q for _ in cols]
+    rank = f"GREATEST({sims})"
+    where, params = _where(filters, _columnas(schema))
+    if where:
+        sql = (f"SELECT data, {rank} AS rank, COUNT(*) OVER () AS n_total FROM raw_records"
+               f"{where} AND ({ors}) ORDER BY rank DESC LIMIT %s")
+    else:
+        sql = (f"SELECT data, {rank} AS rank, COUNT(*) OVER () AS n_total FROM raw_records"
+               f" WHERE {ors} ORDER BY rank DESC LIMIT %s")
+    return sql, sim_params + params + or_params + [_pin(limit)]
+
+
 def list_values_sql(dimension: str, schema: dict | None = None):
     schema = schema or load_schema()
     col = _exigir_dimension(_columnas(schema), dimension)
     if col["role"] == "closed_dimension":
         return None, []  # valores ya enumerados en schema.json: cero consultas
-    sql = ("SELECT DISTINCT data->>%s AS v, COUNT(*) OVER () AS total FROM raw_records "
-           "WHERE data->>%s IS NOT NULL ORDER BY v LIMIT %s")
+    # COUNT(*) OVER() se calcula ANTES del DISTINCT externo si va en la misma
+    # consulta: cuenta filas totales, no valores únicos (bug real: reportaba
+    # "38300 valores" para municipio en vez de ~1027). El DISTINCT va en una
+    # subconsulta y se cuenta aparte, sobre el resultado ya deduplicado.
+    sql = ("SELECT v, COUNT(*) OVER () AS total FROM "
+           "(SELECT DISTINCT data->>%s AS v FROM raw_records WHERE data->>%s IS NOT NULL) t "
+           "ORDER BY v LIMIT %s")
     return sql, [dimension, dimension, MAX_RESULTS]
 
 
@@ -257,8 +325,17 @@ def count(filters: dict | None = None) -> dict:
 def lookup(text_query: str, filters: dict | None = None,
            limit: int = MAX_RESULTS) -> dict:
     sql, params = lookup_sql(text_query, filters or {}, limit)
+    # Una sola conexión para el intento FTS y el fallback: dos conexiones al
+    # pooler remoto (una por consulta) sumaban ~0.5s cada una y por poco
+    # superaban el timeout de 2s, cuando la query real tarda ~40 ms.
     with _connect() as conn:
         rows = conn.execute(sql, params).fetchall()
+        if not rows:
+            # Fallback difuso solo si la búsqueda exacta no encontró nada.
+            # ponytail: umbral fijo 0.3, sin mezclar el score con el de FTS
+            # (escalas distintas); mejorar con un ranking combinado si hace falta.
+            sql2, params2 = lookup_fuzzy_sql(text_query, filters or {}, limit)
+            rows = conn.execute(sql2, params2).fetchall()
     total = rows[0][2] if rows else 0
     return {"total": total, "filas": [r[0] for r in rows]}
 
@@ -296,7 +373,7 @@ def demo():
     for fn, exc in [
         (lambda: aggregate_sql("no_existe", [], {}), "medida"),
         (lambda: aggregate_sql("nombre", [], {}), "medida con rol"),
-        (lambda: aggregate_sql("capacidad", ["nombre"], {}), "group_by"),
+        (lambda: aggregate_sql("capacidad", ["fuente"], {}), "group_by constante"),
         (lambda: aggregate_sql("capacidad", [], {"fuente": "x"}), "filtro"),
         (lambda: count_sql({"capacidad": 1}), "filtro medida"),
         (lambda: lookup_sql("  ", {}), "text_query"),
@@ -317,17 +394,32 @@ def demo():
     assert p[-1] == 5, p
     print("ok: top_n/limit pinzados a máximo 5")
 
+    # Ranking por identificador (ej. "qué IPS tiene más capacidad"): antes
+    # se rechazaba por regla ("no es dimensión agrupable"), ahora es válido
+    # porque aggregate siempre acota con LIMIT top_n. list_values NO cambia.
+    sql, params = aggregate_sql("capacidad", ["nombre"], {}, 5, falso)
+    assert "GROUP BY" in sql and params[0] == "nombre", (sql, params)
+    print("ok: aggregate agrupa por identificador (ranking), list_values sigue estricto")
+
     # ningún valor de usuario aparece interpolado en el SQL
     sql, params = aggregate_sql("capacidad", ["depto"], {"depto": "Nariño"}, 5, falso)
     assert "Nariño" not in sql and "depto" not in sql.replace("data->>", ""), sql
     assert params == ["depto", "capacidad", '{"depto": "Nariño"}', 5], params
     print("ok: valores solo como placeholders:", params)
 
-    # columnas buscables: texto libre sí, email/teléfono/códigos no
-    assert search_columns(falso) == ["nombre"], search_columns(falso)
+    # columnas buscables: TODOS los identificadores (dataset público, sin filtrar)
+    assert search_columns(falso) == ["nombre", "email", "tel", "codigo"], search_columns(falso)
     idx = build_search_index_sql(falso)
-    assert "USING GIN" in idx and "nombre" in idx and "email" not in idx, idx
-    print("ok: lookup solo sobre identificadores de texto libre")
+    assert "USING GIN" in idx and "nombre" in idx and "email" in idx, idx
+    trgm = build_trgm_index_sql(falso)
+    assert len(trgm) == 4 and all("gin_trgm_ops" in s for s in trgm), trgm
+    assert any("email" in s for s in trgm), trgm
+    print("ok: lookup sobre todos los identificadores (nombre, email, tel, código)")
+
+    # filtrar por un identificador (código exacto) sí funciona, antes se rechazaba
+    sql, params = count_sql({"codigo": "504512253"}, falso)
+    assert '"codigo": "504512253"' in params[0], params
+    print("ok: count admite filtro por identificador exacto")
 
     # cerrada no toca la base
     sql, _ = list_values_sql("depto", falso)

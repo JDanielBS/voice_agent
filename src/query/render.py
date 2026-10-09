@@ -179,24 +179,41 @@ def render_count(result: dict, filters: dict | None = None) -> str:
     return f"Encontré {verbalizar(total)} registros{filtros}."
 
 
-def _buscar_nombre(fila: dict, cols: list[str], query: str = "") -> str | None:
-    """Elige, entre las columnas buscables, la que mejor coincide con la consulta.
+def _elegir_nombre(fila: dict, cols: list[str], query: str = "") -> tuple[str | None, str]:
+    """Elige la columna que encabeza la respuesta y su valor: (columna, valor).
 
-    Varias columnas (nombre del prestador, de la sede, del gerente) contienen
-    texto libre. Sin este criterio se devolvía el primer campo no vacío, que
-    podía ser el gerente en vez del hospital. La decisión es por similitud con
-    lo que el usuario pidió, no por nombre de columna.
+    Dos reglas sobre la similitud simple:
+    1. Si un campo es ECO literal de lo que el usuario dijo (buscó por
+       código "9140500019" y ese mismo valor vive en codigo_sede), se
+       descarta como "nombre" — encontrar lo que se buscó no es informativo.
+    2. Entre el resto, se prefiere texto sobre números puros (un código no
+       es un buen encabezado aunque coincida), y luego la mayor similitud.
     """
     q = _norm(query)
-    mejor, score_mejor = None, -1.0
+    candidatos = []
     for c in cols:
         v = fila.get(c)
         if not v:
             continue
+        v = str(v)
+        es_numerico = v.replace(" ", "").isdigit()
+        es_email = "@" in v
+        # Eco solo importa para un código: que el usuario haya dicho ese
+        # número no lo hace "el nombre". Un nombre que coincide exacto SÍ
+        # es la mejor respuesta posible (es justo lo que se buscaba).
+        if q and es_numerico and _norm(v) == q:
+            continue
+        # Prioridad como encabezado: texto normal > email > número puro.
+        # Un email es dato válido (de detalle), pero empezar la frase
+        # hablada leyéndolo letra por letra es mala experiencia.
+        prioridad = 0 if es_numerico else (1 if es_email else 2)
         score = difflib.SequenceMatcher(None, q, _norm(v)).ratio() if q else 1.0
-        if score > score_mejor:
-            mejor, score_mejor = str(v), score
-    return mejor
+        candidatos.append((prioridad, score, c, v))
+    if not candidatos:
+        return None, "Una entidad"
+    candidatos.sort(key=lambda t: (t[0], t[1]), reverse=True)
+    _, _, col, val = candidatos[0]
+    return col, val
 
 
 def render_lookup(result: dict, name_cols: list[str] | None = None,
@@ -209,22 +226,36 @@ def render_lookup(result: dict, name_cols: list[str] | None = None,
         return f"No encontré ninguna entidad{filtros}."
 
     cols = name_cols or []
-    nombres = []
-    for f in filas[:5]:
-        nombre = _buscar_nombre(f, cols, text_query)
-        if nombre is None:
-            # Fallback genérico: primer campo de texto largo que no sea un filtro.
-            for k, v in f.items():
-                if k not in (filters or {}) and isinstance(v, str) and len(v) > 8:
-                    nombre = v
-                    break
-        nombre = nombre or "Una entidad"
-        if nombre not in nombres:
-            nombres.append(nombre)
-        if len(nombres) == 3:
-            break
-    nombres = nombres or ["Una entidad"]
+    resueltos = [_elegir_nombre(f, cols, text_query) for f in filas[:5]]
+    nombres_unicos = []
+    for _, nombre in resueltos:
+        if nombre not in nombres_unicos:
+            nombres_unicos.append(nombre)
 
+    # La búsqueda ya converge en una sola entidad real: el usuario no
+    # necesita que se le repita "encontré N coincidencias", necesita el
+    # detalle (dirección, gerente, teléfono...). Antes esto SIEMPRE caía
+    # en la plantilla de abajo, por eso "dime todo lo que tiene" repetía
+    # literal "Encontré 2 coincidencias: URAMEDICOS" sin decir nada nuevo.
+    if total <= 2 or len(nombres_unicos) == 1:
+        col_nombre, nombre = resueltos[0]
+        fila = filas[0]
+        excluir = {col_nombre} | set((filters or {}).keys())
+        detalles = []
+        for c in cols:
+            if c in excluir:
+                continue
+            v = fila.get(c)
+            if not v or not isinstance(v, str):
+                continue
+            detalles.append(f"{humanizar_columna(c)} {v}")
+            if len(detalles) == 3:
+                break
+        if detalles:
+            return f"{nombre}: " + ", ".join(detalles) + "."
+        return f"Encontré {nombre}{filtros}, pero no tengo más detalle que mostrar."
+
+    nombres = nombres_unicos[:3]
     texto = f"Encontré {total} coincidencias{filtros}. Las principales son: " + ", ".join(nombres)
     if total > 3:
         texto += f", y {total - 3} más."
@@ -310,6 +341,37 @@ def demo():
     assert render_disambiguation("Cali", ["municipio", "departamento"]) == \
         "¿Cali el municipio, o el departamento?", render_disambiguation("Cali", ["municipio", "departamento"])
     print("ok: desambiguación '¿Cali el municipio, o el departamento?'")
+
+    # Caso real 1: "información general de uramédicos" -> 2 filas, misma
+    # entidad (nombre repetido) -> debe dar DETALLE, no solo repetir el nombre.
+    cols = ["nombre_prestador", "nom_sede_ips", "gerente", "direccion", "email"]
+    filas_urame = [
+        {"nombre_prestador": "URAMEDICOS", "nom_sede_ips": "URAMEDICOS",
+         "gerente": "CLAUDIA CECILIA TRUJILLO GOMEZ", "direccion": "KR 98 # 103-29/37",
+         "email": "uramedicos@gmail.com"},
+        {"nombre_prestador": "URAMEDICOS", "nom_sede_ips": "URAMEDICOS",
+         "gerente": "CLAUDIA CECILIA TRUJILLO GOMEZ", "direccion": "KR 98 # 103-29/37",
+         "email": "uramedicos@gmail.com"},
+    ]
+    txt = render_lookup({"total": 2, "filas": filas_urame}, cols, {}, "uramedicos")
+    assert "URAMEDICOS" in txt and ("KR 98" in txt or "TRUJILLO" in txt or "gmail" in txt), txt
+    assert "Encontré 2 coincidencias" not in txt, txt
+    print("ok: lookup de entidad única da detalle, no solo el nombre ->", txt)
+
+    # Caso real 2: buscar por código exacto -> el código NO debe aparecer
+    # como "nombre" (antes salía "Las principales son: 9140500019").
+    fila_cod = {"nombre_prestador": "HOSPITAL SAN RAFAEL", "codigo_sede": "9140500019",
+                "direccion": "CALLE FALSA 123"}
+    col, nombre = _elegir_nombre(fila_cod, ["nombre_prestador", "codigo_sede"], "9140500019")
+    assert nombre == "HOSPITAL SAN RAFAEL", nombre
+    print("ok: código buscado no se confunde con el nombre ->", nombre)
+
+    # Caso 3: varias entidades distintas de verdad -> sigue listando nombres.
+    filas_varias = [{"nombre_prestador": "HOSPITAL A"}, {"nombre_prestador": "HOSPITAL B"},
+                     {"nombre_prestador": "HOSPITAL C"}, {"nombre_prestador": "HOSPITAL D"}]
+    txt = render_lookup({"total": 4, "filas": filas_varias}, ["nombre_prestador"], {}, "hospital")
+    assert "Encontré 4 coincidencias" in txt and "HOSPITAL A" in txt, txt
+    print("ok: varias entidades distintas siguen listándose ->", txt)
 
 
 if __name__ == "__main__":

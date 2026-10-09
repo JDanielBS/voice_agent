@@ -16,6 +16,7 @@ from openai import AzureOpenAI
 
 from src.agent.state import manager as state_manager
 from src.agent.prompt import generate_prompt
+from src.agent import turn
 from src.query import tools, render, resolve
 
 MAX_TOOL_CALLS = 5  # regla 5: por voz no se pueden escuchar más
@@ -33,7 +34,8 @@ TOOLS_DEF = [
                     "group_by": {"type": "array", "items": {"type": "string"}},
                     "filters": {"type": "object"},
                     "top_n": {"type": "integer"},
-                    "sentimiento": {"type": "string", "enum": ["neutro", "urgente", "frustrado", "positivo"], "description": "Tono de voz / sentimiento del usuario."}
+                    "sentimiento": {"type": "string", "enum": ["neutro", "urgente", "frustrado", "positivo"], "description": "Tono de voz / sentimiento del usuario."},
+                    "necesita_interpretacion": {"type": "boolean", "description": "true si, además del dato, el usuario pidió su significado o interpretación."}
                 },
                 "required": ["measure"]
             }
@@ -48,7 +50,8 @@ TOOLS_DEF = [
                 "type": "object",
                 "properties": {
                     "filters": {"type": "object"},
-                    "sentimiento": {"type": "string", "enum": ["neutro", "urgente", "frustrado", "positivo"], "description": "Tono de voz / sentimiento del usuario."}
+                    "sentimiento": {"type": "string", "enum": ["neutro", "urgente", "frustrado", "positivo"], "description": "Tono de voz / sentimiento del usuario."},
+                    "necesita_interpretacion": {"type": "boolean", "description": "true si, además del dato, el usuario pidió su significado o interpretación."}
                 }
             }
         }
@@ -64,7 +67,8 @@ TOOLS_DEF = [
                     "text_query": {"type": "string"},
                     "filters": {"type": "object"},
                     "limit": {"type": "integer"},
-                    "sentimiento": {"type": "string", "enum": ["neutro", "urgente", "frustrado", "positivo"], "description": "Tono de voz / sentimiento del usuario."}
+                    "sentimiento": {"type": "string", "enum": ["neutro", "urgente", "frustrado", "positivo"], "description": "Tono de voz / sentimiento del usuario."},
+                    "necesita_interpretacion": {"type": "boolean", "description": "true si, además del dato, el usuario pidió su significado o interpretación."}
                 },
                 "required": ["text_query"]
             }
@@ -79,7 +83,8 @@ TOOLS_DEF = [
                 "type": "object",
                 "properties": {
                     "dimension": {"type": "string"},
-                    "sentimiento": {"type": "string", "enum": ["neutro", "urgente", "frustrado", "positivo"], "description": "Tono de voz / sentimiento del usuario."}
+                    "sentimiento": {"type": "string", "enum": ["neutro", "urgente", "frustrado", "positivo"], "description": "Tono de voz / sentimiento del usuario."},
+                    "necesita_interpretacion": {"type": "boolean", "description": "true si, además del dato, el usuario pidió su significado o interpretación."}
                 },
                 "required": ["dimension"]
             }
@@ -208,6 +213,7 @@ def _apply_state(state, func_name: str, args: dict, resolved_filters: dict):
     group_by = args.get("group_by") or []
     state.update(tool_name=func_name, filters=resolved_filters,
                  measure=measure, active_dimension=group_by[0] if group_by else None)
+    state.last_tool_args = dict(args)
 
 
 def _complete_pending(state, user_text: str, schema: dict) -> str | None:
@@ -260,6 +266,7 @@ def _complete_pending(state, user_text: str, schema: dict) -> str | None:
     _apply_state(state, pend["tool"], args, filt)
     sentimiento = pend.get("sentimiento", "neutro")
     final = render.aplicar_tono(ans, sentimiento)
+    state.last_response = final
     state.add_message("user", user_text)
     state.add_message("assistant", final)
     return final
@@ -272,6 +279,11 @@ def process_turn(session_id: str, user_text: str) -> str:
     client = _get_client()
     state = state_manager.get(session_id)
     schema = tools.load_schema()
+
+    # Fase 6: Interceptar turnos de corrección
+    intercept = turn.interceptar(user_text, state)
+    if intercept:
+        user_text = intercept
 
     # Desambiguación pendiente: se intenta cerrar sin reinterpretar la frase.
     if state.pending_disambiguation:
@@ -312,12 +324,14 @@ def process_turn(session_id: str, user_text: str) -> str:
     if not msg.tool_calls:
         # El modelo redactó algo directo (saludo, fuera de dominio, seguimiento).
         final = msg.content or "No sé cómo procesar esa petición."
+        state.last_response = final
         state.add_message("user", user_text)
         state.add_message("assistant", final)
         return final
 
     respuestas: list[str] = []
     sentimiento = "neutro"
+    necesita_interpretacion = False
 
     for tc in msg.tool_calls[:MAX_TOOL_CALLS]:
         func_name = tc.function.name
@@ -339,6 +353,7 @@ def process_turn(session_id: str, user_text: str) -> str:
 
         args["filters"] = resolved_filters
         sentimiento = args.pop("sentimiento", sentimiento) or sentimiento
+        necesita_interpretacion = necesita_interpretacion or bool(args.pop("necesita_interpretacion", False))
 
         try:
             respuestas.append(_execute_tool(func_name, args, schema))
@@ -347,7 +362,38 @@ def process_turn(session_id: str, user_text: str) -> str:
             return f"Hubo un problema ejecutando la consulta: {e}"
 
     final_ans = " ".join(respuestas)
+
+    # Segunda pasada, SOLO si el usuario pidió explicación/interpretación
+    # además del dato (ARQUITECTURA.md §5.4). Camino rápido (sin esto) no
+    # cambia: cero salto extra cuando la pregunta es solo numérica.
+    if necesita_interpretacion:
+        final_ans = _interpretar(client, deployment, user_text, final_ans)
+
     final_ans = render.aplicar_tono(final_ans, sentimiento)
+    state.last_response = final_ans
     state.add_message("user", user_text)
     state.add_message("assistant", final_ans)
     return final_ans
+
+
+def _interpretar(client, deployment: str, user_text: str, datos: str) -> str:
+    """Segundo salto al LLM: SOLO para explicar/interpretar datos ya
+    obtenidos, nunca para calcular números nuevos (regla 1, CLAUDE.md)."""
+    try:
+        resp = client.chat.completions.create(
+            model=deployment,
+            messages=[
+                {"role": "system", "content": (
+                    "Explica o interpreta el dato para el usuario en 1 o 2 frases "
+                    "adicionales. Usa EXCLUSIVAMENTE los números y nombres que ya "
+                    "aparecen en 'Dato obtenido'. No inventes ni calcules cifras "
+                    "nuevas, no repitas el dato tal cual, solo agrega el contexto "
+                    "o significado que el usuario pidió."
+                )},
+                {"role": "user", "content": f"Pregunta: {user_text}\nDato obtenido: {datos}"},
+            ],
+        )
+        extra = (resp.choices[0].message.content or "").strip()
+    except Exception:
+        return datos  # regla 7: nunca silencio; si falla, se queda con el dato simple
+    return f"{datos} {extra}".strip() if extra else datos

@@ -1,21 +1,21 @@
 """Manejo de estado de conversación en memoria.
 
-La arquitectura requiere 5 slots con TTL de 3 turnos:
+La arquitectura requiere 5 slots con TTL de 5 turnos:
   1. measure (medida)
   2. dimensión activa
   3. filtros
   4. última tool
   5. desambiguación pendiente
 
-El estado vive en memoria por sesión (conexión). Si pasan 3 turnos sin renovarlo o 
+El estado vive en memoria por sesión (conexión). Si pasan 5 turnos sin renovarlo o 
 se cambia de tema bruscamente, se limpia.
 """
 from __future__ import annotations
 
 import time
 
-TTL_TURNS = 3
-
+TTL_TURNS = 5
+HISTORY_MAX = 20
 
 class ConversationState:
     def __init__(self):
@@ -23,17 +23,20 @@ class ConversationState:
         self.active_dimension: str | None = None
         self.filters: dict[str, str | int | float] = {}
         self.last_tool: str | None = None
+        self.last_tool_args: dict | None = None
+        self.last_response: str | None = None
         self.pending_disambiguation: dict | None = None
+        self.pending_correction: dict | None = None
         
         self.turns_left: int = TTL_TURNS
         self.last_accessed: float = time.time()
-        self.history: list[dict] = []  # Ventana deslizante de 6 mensajes
+        self.history: list[dict] = []  # Ventana deslizante de HISTORY_MAX mensajes
 
     def add_message(self, role: str, content: str):
-        """Añade un mensaje a la ventana deslizante (máx 6)."""
+        """Añade un mensaje a la ventana deslizante (máx HISTORY_MAX)."""
         self.history.append({"role": role, "content": content})
-        if len(self.history) > 6:
-            self.history = self.history[-6:]
+        if len(self.history) > HISTORY_MAX:
+            self.history = self.history[-HISTORY_MAX:]
             
     def resumen_slots(self) -> str:
         """Devuelve un resumen de texto de los slots activos para contexto."""
@@ -88,7 +91,10 @@ class ConversationState:
         self.active_dimension = None
         self.filters = {}
         self.last_tool = None
+        self.last_tool_args = None
+        self.last_response = None
         self.pending_disambiguation = None
+        self.pending_correction = None
         self.turns_left = TTL_TURNS
         self.history.clear()
 

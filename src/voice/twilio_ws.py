@@ -121,8 +121,17 @@ async def websocket_endpoint(websocket: WebSocket):
                     print(f"[WS] Usuario dijo: '{text}'")
                     
                     if text.strip():
-                        # process_turn es bloqueante (espera OpenAI)
-                        reply = await asyncio.to_thread(process_turn, call_sid, text)
+                        # Fase 6: Si process_turn tarda más de 2 seg, decir "Un momento por favor"
+                        llm_task = asyncio.create_task(asyncio.to_thread(process_turn, call_sid, text))
+                        done, pending = await asyncio.wait([llm_task], timeout=2.0)
+                        
+                        if not done:
+                            print("[WS] LLM demorado, enviando mensaje de espera...")
+                            tts_task = asyncio.create_task(play_tts("Buscando la información..."))
+                            # Esperar a que el LLM termine
+                            await llm_task
+                        
+                        reply = llm_task.result()
                         print(f"[WS] Agente responde: {reply}")
                         
                         tts_task = asyncio.create_task(play_tts(reply))
