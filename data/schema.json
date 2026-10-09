@@ -1,0 +1,332 @@
+{
+  "total_rows": 38282,
+  "total_columns": 20,
+  "columns": [
+    {
+      "name": "email",
+      "role": "identifier",
+      "n_unique": 9402,
+      "null_count": 63,
+      "null_ratio": 0.0016,
+      "sample_values": [
+        "calidad@esehospitalsanrafael-leticia-amazonas.gov.co",
+        "chorrera@esehospitalsanrafael-leticia-amazonas.gov.co",
+        "hsanrafael1@yahoo.com",
+        "pedrera@esehospitalsanrafael-leticia-amazonas.gov.co",
+        "sanrafael@esehospitalsanrafael-leticia-amazonas.gov.co"
+      ]
+    },
+    {
+      "name": "fuente",
+      "role": "constant",
+      "n_unique": 1,
+      "null_count": 0,
+      "null_ratio": 0.0,
+      "sample_values": [
+        "Base de datos Registro Especial de Prestadores de Servicios de Salud - REPS."
+      ]
+    },
+    {
+      "name": "gerente",
+      "role": "identifier",
+      "n_unique": 9699,
+      "null_count": 225,
+      "null_ratio": 0.0059,
+      "sample_values": [
+        "GLORIA VIRGINIA LOPEZ DE RAMIREZ",
+        "JAVIER HERNÁN GUTIERREZ CAMACHO",
+        "RAFAEL IGNACIO BUSTAMANTE URZOLA",
+        "ROBERTO CARDENAS ROJAS",
+        "SAIDA VIVIANA HERREÑO PRIETO"
+      ]
+    },
+    {
+      "name": "nit_ips",
+      "role": "identifier",
+      "n_unique": 7915,
+      "null_count": 0,
+      "null_ratio": 0.0
+    },
+    {
+      "name": "tel_fono",
+      "role": "identifier",
+      "n_unique": 12354,
+      "null_count": 1211,
+      "null_ratio": 0.0316,
+      "sample_values": [
+        "3203014882",
+        "3203016132",
+        "3203016139",
+        "59 2 7718",
+        "985227075"
+      ]
+    },
+    {
+      "name": "direcci_n",
+      "role": "identifier",
+      "n_unique": 15197,
+      "null_count": 60,
+      "null_ratio": 0.0016,
+      "sample_values": [
+        "CORREGIMIENTO DE LA CHORRERA",
+        "CORREGIMIENTO DE LA PEDRERA",
+        "CORREGIMIENTO DEL ENCANTO",
+        "CRA 10 # 13-78",
+        "LA VICTORIA"
+      ]
+    },
+    {
+      "name": "municipio",
+      "role": "open_dimension",
+      "n_unique": 1027,
+      "null_count": 0,
+      "null_ratio": 0.0,
+      "sample_values": [
+        "EL ENCANTO",
+        "LA CHORRERA",
+        "LA PEDRERA",
+        "LA VICTORIA",
+        "LETICIA",
+        "MIRITI - PARANÁ",
+        "PUERTO ALEGRÍA",
+        "PUERTO ARICA",
+        "PUERTO NARIÑO",
+        "PUERTO SANTANDER"
+      ]
+    },
+    {
+      "name": "naturaleza",
+      "role": "closed_dimension",
+      "n_unique": 3,
+      "null_count": 0,
+      "null_ratio": 0.0,
+      "values": [
+        "Mixta",
+        "Privada",
+        "Pública"
+      ]
+    },
+    {
+      "name": "c_digo_sede",
+      "role": "identifier",
+      "n_unique": 10921,
+      "null_count": 0,
+      "null_ratio": 0.0
+    },
+    {
+      "name": "fecha_corte",
+      "role": "constant",
+      "n_unique": 1,
+      "null_count": 0,
+      "null_ratio": 0.0,
+      "sample_values": [
+        "Fecha corte REPS: Nov  5 2022  1:37PM"
+      ]
+    },
+    {
+      "name": "n_mero_sede",
+      "role": "identifier",
+      "n_unique": 77,
+      "null_count": 0,
+      "null_ratio": 0.0
+    },
+    {
+      "name": "departamento",
+      "role": "closed_dimension",
+      "n_unique": 38,
+      "null_count": 0,
+      "null_ratio": 0.0,
+      "values": [
+        "Amazonas",
+        "Antioquia",
+        "Arauca",
+        "Atlántico",
+        "Barranquilla",
+        "Bogotá D.C",
+        "Bolívar",
+        "Boyacá",
+        "Buenaventura",
+        "Caldas",
+        "Cali",
+        "Caquetá",
+        "Cartagena",
+        "Casanare",
+        "Cauca",
+        "Cesar",
+        "Chocó",
+        "Cundinamarca",
+        "Córdoba",
+        "Guainía",
+        "Guaviare",
+        "Huila",
+        "La Guajira",
+        "Magdalena",
+        "Meta",
+        "Nariño",
+        "Norte de Santander",
+        "Putumayo",
+        "Quindío",
+        "Risaralda",
+        "San Andrés y Providencia",
+        "Santa Marta",
+        "Santander",
+        "Sucre",
+        "Tolima",
+        "Valle del cauca",
+        "Vaupés",
+        "Vichada"
+      ]
+    },
+    {
+      "name": "nom_sede_ips",
+      "role": "identifier",
+      "n_unique": 14821,
+      "null_count": 0,
+      "null_ratio": 0.0,
+      "sample_values": [
+        "CENTRO DE SALUD DE LA CHORRERA- E.S.E HOSPITAL SAN RAFAEL DE LETICIA",
+        "CENTRO DE SALUD DE LA PEDRERA - E.S.E HOSPITAL SAN RAFAEL DE LETICIA",
+        "CENTRO DE SALUD SAN RAFAEL - E.S.E HOSPITAL SAN RAFAEL DE LETICIA",
+        "E.S.E. HOSPITAL SAN RAFAEL",
+        "LA VICTORIA ESE SAN FARAEL DE LETICIA"
+      ]
+    },
+    {
+      "name": "c_digo_prestador",
+      "role": "identifier",
+      "n_unique": 9320,
+      "null_count": 0,
+      "null_ratio": 0.0
+    },
+    {
+      "name": "nombre_prestador",
+      "role": "identifier",
+      "n_unique": 8357,
+      "null_count": 0,
+      "null_ratio": 0.0,
+      "sample_values": [
+        "E.S.E. HOSPITAL SAN RAFAEL DE LETICIA",
+        "FUNDACION CLINICA LETICIA",
+        "INSTITUTO PARA LA PREVENCIÓN, EL TRATAMIENTO Y REHABILITACIÓN DE LAS ENFERMEDADES INMUNOSUPRESORAS SAS - RENACERA",
+        "LABORATORIO DE CLINICA HUMANA GOMEZ VASQUEZ EU",
+        "RAFAEL BUSTAMANTE Y CIA LTDA"
+      ]
+    },
+    {
+      "name": "num_nivel_atencion",
+      "role": "closed_dimension",
+      "n_unique": 3,
+      "null_count": 23846,
+      "null_ratio": 0.6229,
+      "values": [
+        "1",
+        "2",
+        "3"
+      ]
+    },
+    {
+      "name": "nom_grupo_capacidad",
+      "role": "closed_dimension",
+      "n_unique": 7,
+      "null_count": 0,
+      "null_ratio": 0.0,
+      "values": [
+        "AMBULANCIAS",
+        "CAMAS",
+        "CAMILLAS",
+        "CONSULTORIOS",
+        "SALAS",
+        "SILLAS",
+        "UNIDAD MOVIL"
+      ]
+    },
+    {
+      "name": "num_digito_verificion",
+      "role": "identifier",
+      "n_unique": 11,
+      "null_count": 28,
+      "null_ratio": 0.0007
+    },
+    {
+      "name": "nom_descripcion_capacidad",
+      "role": "closed_dimension",
+      "n_unique": 59,
+      "null_count": 0,
+      "null_ratio": 0.0,
+      "values": [
+        "Adultos",
+        "Atención del Parto",
+        "Básica",
+        "Consulta Externa",
+        "Cuidado Agudo Mental",
+        "Cuidado Intensivo Adulto",
+        "Cuidado Intensivo Neonatal",
+        "Cuidado Intensivo Pediátrico",
+        "Cuidado Intermedio Adulto",
+        "Cuidado Intermedio Neonatal",
+        "Cuidado Intermedio Pediátrico",
+        "Cuidado básico neonatal",
+        "Cuna Básico Neonatal",
+        "Cuna Intensiva Neonatal",
+        "Cuna Intensiva Pediátrica",
+        "Cuna Intermedia Neonatal",
+        "Cuna Intermedia Pediátrica",
+        "Farmacodependencia",
+        "Incubadora Básico Neonatal",
+        "Incubadora Intensiva Neonatal",
+        "Incubadora Intermedia Neonatal",
+        "Institución Paciente Crónico",
+        "Intensiva Adultos",
+        "Intensiva Pediátrica",
+        "Intensiva Quemado Adulto",
+        "Intensiva Quemado pediátrica",
+        "Intermedia Adultos",
+        "Intermedia Pediátrica",
+        "Medicalizada",
+        "Observación Adultos Hombres",
+        "Observación Adultos Mujeres",
+        "Observación Pediátrica",
+        "Obstetricia",
+        "Otras patologías",
+        "Paciente crónico con ventilador",
+        "Paciente crónico sin ventilador",
+        "Partos",
+        "Pediátrica",
+        "Procedimientos",
+        "Psiquiatría",
+        "Quirófano",
+        "SPA",
+        "SPA Adultos",
+        "SPA Básico Adultos",
+        "SPA Básico Pediátricos",
+        "SPA Pediátricas",
+        "Sala de Cirugía",
+        "Sala de Radioterapia",
+        "Salud Mental",
+        "Salud Mental Adulto",
+        "Salud Mental Pediátrico",
+        "Sillas de Hemodiálisis",
+        "Sillas de Quimioterapia",
+        "TPR",
+        "Transplante de progenitores hematopoyeticos",
+        "Unidad Móvil",
+        "Unidad de Quemados Adulto",
+        "Unidad de Quemados Pediátrico",
+        "Urgencias"
+      ]
+    },
+    {
+      "name": "num_cantidad_capacidad_instalada",
+      "role": "measure",
+      "n_unique": 195,
+      "null_count": 0,
+      "null_ratio": 0.0,
+      "stats": {
+        "min": 1.0,
+        "max": 1000.0,
+        "mean": 5.66,
+        "median": 2.0
+      }
+    }
+  ]
+}
