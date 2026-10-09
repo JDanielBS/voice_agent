@@ -187,25 +187,32 @@ _TOOL_KEYS = {
 }
 
 
-def _execute_tool(func_name: str, args: dict, schema: dict) -> str:
-    """Ejecuta la tool y devuelve la respuesta hablada (determinista)."""
+def _execute_tool(func_name: str, args: dict, schema: dict) -> dict:
+    """Ejecuta la tool y devuelve la "pieza" redactada (determinista).
+
+    Cada pieza trae su texto completo y, cuando la consulta tiene contexto
+    compartido (lugar), lo que hace falta para que `render.componer` deduplique
+    y conecte las piezas de un mismo turno.
+    """
     kwargs = {k: args[k] for k in _TOOL_KEYS.get(func_name, ()) if k in args}
     filters = kwargs.get("filters") or {}
     if func_name == "aggregate":
         res = tools.aggregate(**kwargs)
-        return render.render_aggregate(res, kwargs.get("measure", ""),
-                                       kwargs.get("group_by") or [], filters)
+        return render._agregado_pieza(res, kwargs.get("measure", ""),
+                                      kwargs.get("group_by") or [], filters)
     if func_name == "count":
         res = tools.count(**kwargs)
-        return render.render_count(res, filters)
+        return render._contar_pieza(res, filters)
     if func_name == "lookup":
         res = tools.lookup(**kwargs)
-        return render.render_lookup(res, tools.search_columns(schema), filters,
-                                    kwargs.get("text_query", ""))
-    if func_name == "list_values":
+        texto = render.render_lookup(res, tools.search_columns(schema), filters,
+                                     kwargs.get("text_query", ""))
+    elif func_name == "list_values":
         res = tools.list_values(**kwargs)
-        return render.render_list_values(res, kwargs.get("dimension"))
-    return "No pude procesar la consulta."
+        texto = render.render_list_values(res, kwargs.get("dimension"))
+    else:
+        texto = "No pude procesar la consulta."
+    return render._pieza(texto)
 
 
 def _apply_state(state, func_name: str, args: dict, resolved_filters: dict):
@@ -262,7 +269,7 @@ def _complete_pending(state, user_text: str, schema: dict) -> str | None:
 
     args["filters"] = filt
     state.clear_disambiguation()
-    ans = _execute_tool(pend["tool"], args, schema)
+    ans = _execute_tool(pend["tool"], args, schema)["texto"]
     _apply_state(state, pend["tool"], args, filt)
     sentimiento = pend.get("sentimiento", "neutro")
     final = render.aplicar_tono(ans, sentimiento)
@@ -361,7 +368,7 @@ def process_turn(session_id: str, user_text: str) -> str:
         except Exception as e:
             return f"Hubo un problema ejecutando la consulta: {e}"
 
-    final_ans = " ".join(respuestas)
+    final_ans = render.componer(respuestas)
 
     # Segunda pasada, SOLO si el usuario pidió explicación/interpretación
     # además del dato (ARQUITECTURA.md §5.4). Camino rápido (sin esto) no
