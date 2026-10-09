@@ -1,0 +1,80 @@
+preguntas:
+  - id: 1
+    desc: "Agregado simple por una dimensión"
+    input: "¿Cuántas camas hay por municipio en el Chocó?"
+    
+  - id: 2
+    desc: "Agregado con dos filtros"
+    input: "¿Cuántas ambulancias hay en Leticia de naturaleza pública?"
+    
+  - id: 3
+    desc: "Conteo"
+    input: "¿Cuántas IPS públicas hay en el Amazonas?"
+    
+  - id: 4
+    desc: "Búsqueda por nombre propio"
+    input: "Busca el hospital san rafael de leticia"
+    
+  - id: 5
+    desc: "Entidad ambigua"
+    input: "¿Cuántas sillas hay en Cali?"
+    
+  - id: 6
+    desc: "Error fonético STT"
+    input: "¿Cuántas camas en el choco?"
+    
+  - id: 7
+    desc: "Resultado vacío"
+    input: "¿Cuántas incubadoras hay en un departamento que no existe?"
+    
+  - id: 8
+    desc: "Resultado con muchas filas"
+    input: "¿Cuántas camas hay por municipio en todo el país?"
+    
+  - id: 9
+    desc: "Pregunta fuera de dominio"
+    input: "¿Cuál es la capital de Francia?"
+    
+  - id: 10
+    desc: "Pregunta de seguimiento (Turno 1)"
+    input: "¿Cuántas camas hay en Leticia?"
+    
+  - id: 11
+    desc: "Pregunta de seguimiento (Turno 2 - asume contexto de Leticia)"
+    input: "¿Y cuántas ambulancias?"
+
+  - id: 12
+    desc: "Validación de tono: Urgente"
+    input: "¡Rápido! ¿Cuántas ambulancias hay disponibles en el Amazonas?"
+    
+  - id: 13
+    desc: "Validación de tono: Frustrado"
+    input: "Ya te pregunté antes, dime cuántas camas hay en Medellín por favor, no entiendo nada"
+    
+  - id: 14
+    desc: "Validación de tono: Positivo"
+    input: "¡Hola! ¿Me podrías decir qué tipos de capacidad hay?"
+    
+  - id: 15
+    desc: "Conteo con filtros múltiples"
+    input: "¿Cuántas sedes de naturaleza privada con nivel de atención 3 hay en Antioquia?"
+    
+  - id: 16
+    desc: "Ambigüedad con dos candidatos"
+    input: "¿Cuántas camas hay en Buenaventura?"
+
+  - id: 17
+    desc: "Consulta de dimensión abierta pura"
+    input: "Lista todas las naturalezas jurídicas"
+    
+  - id: 18
+    desc: "Búsqueda con limitación por ruido"
+    input: "Muéstrame la clínica leticia"
+    
+  - id: 19
+    desc: "Filtro no válido para el STT / corrección"
+    input: "¿Cuántas unidades móviles hay en bogota de ce?"
+    
+  - id: 20
+    desc: "Agregado por nivel de atención"
+    input: "¿Cuántas camas hay por nivel de atención en el Amazonas?"
