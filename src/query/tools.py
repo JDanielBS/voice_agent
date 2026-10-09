@@ -18,7 +18,11 @@ DATA_DIR = Path(__file__).resolve().parents[2] / "data"
 SCHEMA_PATH = DATA_DIR / "schema.json"
 
 MAX_RESULTS = 5
-STATEMENT_TIMEOUT_MS = 500  # regla 12: timeouts cortos y explícitos
+# Regla 12: timeout corto y explícito. El statement mide ~150 ms en caliente,
+# pero el pooler remoto (Supabase us-east-1) mete cientos de ms de varianza y
+# una consulta fría supera 500 ms; 500 ms convertía una consulta válida en
+# fallo (regla 7: nunca silencio). 2 s sigue cortando un runaway sin fallar.
+STATEMENT_TIMEOUT_MS = 2000
 DIM_ROLES = ("closed_dimension", "open_dimension")
 
 _schema_cache: dict | None = None
@@ -67,15 +71,19 @@ def _pin(n: int, default: int = MAX_RESULTS) -> int:
 
 
 def _where(filters: dict, cols: dict) -> tuple[str, list]:
-    """Cláusula WHERE por containment (data @> {...}), no data->>%s = %s:
-    sin índice por clave dinámica, el operador ->> hacía seq scan completo
-    (3s sobre 38k filas). Con GIN(data jsonb_path_ops) + @>, baja a <0.2s.
-    La clave sigue sin interpolarse: sale de schema.json ya validado."""
+    """Cláusula WHERE por containment sobre un JSONB constante y parametrizado.
+
+    `data @> %s::jsonb` con el objeto ya serializado deja que el planner use el
+    índice GIN(data jsonb_path_ops): ~100 ms sobre 38k filas. Con el primitivo
+    `jsonb_build_object(%s, %s)` el planner no puede usar el índice (no es
+    constante) y hacía seq scan (~600 ms, por encima del timeout de 500 ms).
+    La clave sale de schema.json ya validado y el valor viaja como parámetro.
+    """
     clauses, params = [], []
     for k, v in (filters or {}).items():
         _exigir_dimension(cols, k)
-        clauses.append("data @> jsonb_build_object(%s::text, %s::text)")
-        params += [k, str(v)]
+        clauses.append("data @> %s::jsonb")
+        params.append(json.dumps({k: str(v)}, ensure_ascii=False))
     return (" WHERE " + " AND ".join(clauses)) if clauses else "", params
 
 
@@ -229,6 +237,12 @@ def aggregate(measure: str, group_by: list[str] | None = None,
         fila = {g: r[i] for i, g in enumerate(grupos)}
         fila["total"] = r[len(grupos)]
         out.append(fila)
+    if not grupos:
+        # Sin GROUP BY la query es un solo agregado: con 0 filas devuelve 1 fila
+        # con SUM(NULL) y COUNT(*) OVER () = 1 (no 0). Un total nulo = sin datos.
+        if not out or out[0]["total"] is None:
+            return {"total_grupos": 0, "filas": []}
+        return {"total_grupos": 1, "filas": out}
     total = rows[0][len(grupos) + 1] if rows else 0
     return {"total_grupos": total, "filas": out}
 
@@ -306,7 +320,7 @@ def demo():
     # ningún valor de usuario aparece interpolado en el SQL
     sql, params = aggregate_sql("capacidad", ["depto"], {"depto": "Nariño"}, 5, falso)
     assert "Nariño" not in sql and "depto" not in sql.replace("data->>", ""), sql
-    assert params == ["depto", "capacidad", "depto", "Nariño", 5], params
+    assert params == ["depto", "capacidad", '{"depto": "Nariño"}', 5], params
     print("ok: valores solo como placeholders:", params)
 
     # columnas buscables: texto libre sí, email/teléfono/códigos no

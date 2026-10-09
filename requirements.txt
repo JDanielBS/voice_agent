@@ -7,3 +7,4 @@ uvicorn
 openai
 azure-cognitiveservices-speech
 websockets
+pyyaml

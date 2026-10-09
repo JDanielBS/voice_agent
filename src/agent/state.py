@@ -58,12 +58,19 @@ class ConversationState:
         self.turns_left = TTL_TURNS
         self.last_accessed = time.time()
 
-    def set_disambiguation(self, original_text: str, candidates: list[str]):
-        """Guarda el estado pendiente cuando un término es ambiguo."""
+    def set_disambiguation(self, original_text: str, candidates: list[str],
+                           payload: dict | None = None):
+        """Guarda el estado pendiente cuando un término es ambiguo.
+
+        `payload` trae la tool, los args y la dimensión para poder ejecutar la
+        consulta original una vez el usuario aclara (sin reinterpretar la frase).
+        """
         self.pending_disambiguation = {
             "text": original_text,
-            "candidates": candidates
+            "candidates": candidates,
         }
+        if payload:
+            self.pending_disambiguation.update(payload)
         self.turns_left = TTL_TURNS
         self.last_accessed = time.time()
 
