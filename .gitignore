@@ -1,0 +1,9 @@
+.env
+.env.local
+__pycache__/
+*.pyc
+.venv/
+venv/
+data/schema.json
+data/prompt.txt
+data/*.checkpoint
