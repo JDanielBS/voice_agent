@@ -172,7 +172,6 @@ const orbPath = document.getElementById("orbPath"), orbGlow = document.getElemen
       orbCore = document.getElementById("orbCore"), orbBlurG = document.getElementById("orbBlurG");
 let ws, ctx, playCtx, node, stream, playAt = 0, active = false;
 let userLevelTime = 0, tick = 0, pendingItem = null;
-let agentSpeaking = false, agentJSONAt = 0;
 
 // Tabla mu-law G.711 (espejo de src/voice/mulaw.py)
 const MULAW = (() => {
@@ -326,14 +325,13 @@ async function start(){
       if (m.role === "user") addHistory(m.text);
       addTurn(m.role, m.text);
       if (m.role === "agent"){
-        agentSpeaking = true; agentJSONAt = performance.now();
         closeHistory(m.text); setSentiment(m.sentimiento);
       }
     } else playMulaw(e.data);
   };
   ws.onclose = () => stop();
 
-  stream = await navigator.mediaDevices.getUserMedia({audio:{channelCount:1}});
+  stream = await navigator.mediaDevices.getUserMedia({audio:{channelCount:1, echoCancellation:true, noiseSuppression:true, autoGainControl:true}});
   ctx = new AudioContext();
   playCtx = new AudioContext({sampleRate: SR});
   // Autoplay: el contexto puede nacer suspendido aunque venga de un clic.
@@ -343,14 +341,6 @@ async function start(){
   node = ctx.createScriptProcessor(4096, 1, 1);
   node.onaudioprocess = ev => {
     if (ws.readyState !== WebSocket.OPEN) return;
-    // No mandar el micrófono mientras suena el agente: si no, se escucha a sí
-    // mismo, transcribe su propia voz y el turno nunca cierra. (Barge-in real
-    // queda pendiente: exige cancelar el TTS y distinguir las dos voces.)
-    if (agentSpeaking){
-      const drained = playAt > 0 && playAt <= playCtx.currentTime;
-      if (drained || performance.now() - agentJSONAt > 6000){ agentSpeaking = false; }
-      else return;
-    }
     ws.send(downsample(ev.inputBuffer.getChannelData(0), ctx.sampleRate).buffer);
   };
   // El micrófono no se reproduce por los parlantes (ganancia 0), solo mantiene
@@ -370,7 +360,7 @@ function stop(){
   if (stream) stream.getTracks().forEach(t => t.stop());
   if (ctx) ctx.close(); if (playCtx) playCtx.close();
   if (ws && ws.readyState === WebSocket.OPEN) ws.close();
-  playAt = 0; agentSpeaking = false;
+  playAt = 0;
   closeHistory("Llamada finalizada.");
   btn.textContent = "▶ Iniciar llamada"; btn.classList.remove("active");
   document.body.classList.remove("in-call");

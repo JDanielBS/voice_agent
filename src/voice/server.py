@@ -22,7 +22,7 @@ load_dotenv()  # Cargar variables de entorno antes de importar modulos que usan 
 from src.logging_setup import setup_logging
 from src.agent.agent import process_turn
 from src.agent.state import manager as state_manager
-from src.voice.stt import STT_TIMEOUT_S, StreamingSTT
+from src.voice.stt import STT_MAX_WAIT_S, StreamingSTT
 from src.voice.tts import TTS_TIMEOUT_S, synthesize_stream
 from src.voice.vad import VAD
 
@@ -177,14 +177,14 @@ async def demo_endpoint(ws: WebSocket):
                 session_id, vad.level, vad.noise, vad.start_threshold,
             )
 
-            # Regla 12: la transcripción no puede colgar el turno. Si Azure no
-            # responde en STT_TIMEOUT_S (+1 de margen) el turno se descarta y la
-            # sesión sigue escuchando.
+            # Regla 12: el turno no puede colgarse. finish_and_get_text ya espera
+            # con cota interna (resultado + cierre de sesión); este wait_for solo
+            # es red de seguridad, arriba de la cota para no cancelar la sesión.
             t_stt = time.perf_counter()
             try:
                 text = await asyncio.wait_for(
                     asyncio.to_thread(stt.finish_and_get_text),
-                    timeout=STT_TIMEOUT_S + 1,
+                    timeout=STT_MAX_WAIT_S + 1,
                 )
             except asyncio.TimeoutError:
                 log.warning("STT: timeout esperando la transcripción session=%s",

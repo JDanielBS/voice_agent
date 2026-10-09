@@ -3,17 +3,25 @@
 Recibe chunks PCM 16-bit 8kHz del WebSocket de Twilio (ya decodificados de
 mulaw), los empuja al SDK y devuelve texto transcrito.
 
-Timeout de 2 s (Regla 12 de CLAUDE.md).
+Regla 12: timeout de 2 s de referencia. La voz real tarda ~2-3 s en
+endpointizar, así que el resultado se espera en STT_RESULT_WAIT_S; si no llega,
+se espera el cierre de sesión (STT_SETTLE_S) para no dejar sesiones de Azure
+vivas que tiran las transcripciones siguientes del mismo proceso.
 """
 from __future__ import annotations
 
+import logging
 import os
 import threading
-from typing import Callable
 
 import azure.cognitiveservices.speech as speechsdk
 
-STT_TIMEOUT_S = 2  # Regla 12
+log = logging.getLogger(__name__)
+
+STT_TIMEOUT_S = 2       # Regla 12: ventana esperada para voz real
+STT_RESULT_WAIT_S = 4.5  # Azure endpointiza la voz en ~2-3 s
+STT_SETTLE_S = 3.5       # sin resultado: esperar el cierre de sesión
+STT_MAX_WAIT_S = STT_RESULT_WAIT_S + STT_SETTLE_S
 
 
 def _speech_config() -> speechsdk.SpeechConfig:
@@ -56,40 +64,40 @@ class StreamingSTT:
     def finish_and_get_text(self) -> str:
         """Cierra el stream de audio y obtiene la transcripción.
 
-        Bloquea hasta obtener resultado o hasta STT_TIMEOUT_S.
-        Devuelve cadena vacía si no reconoció nada.
+        Bloquea (en un hilo de worker) hasta obtener resultado, o hasta que la
+        sesión de Azure cierra. Nunca abandona una sesión abierta: dejarla viva
+        al acumularse agotaba el límite de sesiones concurrentes y tiraba las
+        transcripciones siguientes (síntoma: "STT: timeout" desde el segundo
+        turno, incluso tras reconectar). Devuelve "" si no reconoció nada.
         """
         if not self._stream or not self._recognizer:
             return ""
 
         self._stream.close()
 
-        result_text = ""
         done = threading.Event()
+        result_text = [""]
 
         def on_recognized(evt):
-            nonlocal result_text
             if evt.result.reason == speechsdk.ResultReason.RecognizedSpeech:
-                result_text = evt.result.text
+                result_text[0] = evt.result.text
             done.set()
 
-        def on_canceled(evt):
+        def on_stop(evt):
             done.set()
 
         self._recognizer.recognized.connect(on_recognized)
-        self._recognizer.canceled.connect(on_canceled)
+        self._recognizer.session_stopped.connect(on_stop)
+        self._recognizer.canceled.connect(on_stop)
+        self._recognizer.recognize_once_async()
 
-        # recognize_once_async es el más simple: un solo enunciado
-        future = self._recognizer.recognize_once_async()
-        try:
-            result = future.get()  # bloquea
-            if result.reason == speechsdk.ResultReason.RecognizedSpeech:
-                result_text = result.text
-        except Exception:
-            pass
+        if not done.wait(STT_RESULT_WAIT_S):
+            log.warning("STT: sin resultado en %.1fs; esperando cierre de sesión (%.1fs)",
+                        STT_RESULT_WAIT_S, STT_SETTLE_S)
+            done.wait(STT_SETTLE_S)
 
         self._cleanup()
-        return result_text
+        return result_text[0]
 
     def cancel(self) -> None:
         """Cancela reconocimiento en curso (para barge-in)."""
