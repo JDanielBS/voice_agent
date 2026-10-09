@@ -78,6 +78,14 @@
        transition:width .5s ease,height .5s ease}
   body.in-call{--orb:clamp(118px,17vh,180px)}
 
+  #warn{display:none;max-width:52ch;margin:10px 16px 0;padding:11px 15px;flex:none;
+        border:1px solid color-mix(in srgb,var(--sent-frustrado) 45%,transparent);
+        border-radius:var(--radius-md);background:color-mix(in srgb,var(--sent-frustrado) 10%,transparent);
+        color:var(--color-neutral-200);font-size:13px;line-height:1.55;text-align:center}
+  #warn.show{display:block}
+  #warn code{font-family:ui-monospace,monospace;font-size:12.5px;
+             background:color-mix(in srgb,var(--color-text) 10%,transparent);
+             padding:1px 5px;border-radius:4px}
   #callbtn{font-family:var(--font-heading);font-weight:500;font-size:14px;cursor:pointer;
            color:var(--color-accent);background:transparent;border:1px solid var(--color-accent);
            padding:9px 20px;border-radius:999px;flex:none;
@@ -86,6 +94,9 @@
   #callbtn:focus-visible{outline:2px solid var(--color-accent-300);outline-offset:3px}
   #callbtn.active{color:var(--sent-urgente);border-color:var(--sent-urgente)}
   #callbtn.active:hover{background:color-mix(in srgb,var(--sent-urgente) 12%,transparent)}
+  #callbtn:disabled{opacity:.4;cursor:not-allowed;border-color:var(--color-neutral-600);
+                    color:var(--color-neutral-600)}
+  #callbtn:disabled:hover{background:transparent}
 
   .feed{flex:1;min-height:0;width:100%;display:flex;justify-content:center}
   #transcript{flex:1;min-height:0;max-width:820px;
@@ -142,6 +153,7 @@
     <circle id="orbCore" cx="150" cy="150" fill="none" stroke="var(--color-accent)" stroke-width="1"/>
   </svg></div>
   <button id="callbtn">▶ Iniciar llamada</button>
+  <div id="warn"></div>
   <div class="feed">
     <div id="transcript" class="scroll">
       <div class="empty">Pulsa «Iniciar llamada» y haz tu pregunta en voz alta.</div>
@@ -155,10 +167,12 @@ const statusEl = document.getElementById("status");
 const sentEl = document.getElementById("sent");
 const transcript = document.getElementById("transcript");
 const history = document.getElementById("history");
+const warnEl = document.getElementById("warn");
 const orbPath = document.getElementById("orbPath"), orbGlow = document.getElementById("orbGlow"),
       orbCore = document.getElementById("orbCore"), orbBlurG = document.getElementById("orbBlurG");
 let ws, ctx, playCtx, node, stream, playAt = 0, active = false;
 let userLevelTime = 0, tick = 0, pendingItem = null;
+let agentSpeaking = false, agentJSONAt = 0;
 
 // Tabla mu-law G.711 (espejo de src/voice/mulaw.py)
 const MULAW = (() => {
@@ -179,6 +193,24 @@ for (const el of document.querySelectorAll(".scroll")){
     clearTimeout(timer);
     timer = setTimeout(() => el.classList.remove("scrolling"), 900);
   }, {passive:true});
+}
+
+function warn(html){ warnEl.innerHTML = html; warnEl.classList.add("show"); }
+
+// getUserMedia solo existe en contexto seguro: localhost, 127.0.0.1 o HTTPS.
+// La URL que imprime uvicorn (0.0.0.0) NO lo es, y el navegador deja
+// navigator.mediaDevices en undefined sin más explicación.
+function micDisponible(){
+  return !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
+}
+if (!micDisponible()){
+  btn.disabled = true;
+  statusEl.textContent = "Micrófono no disponible";
+  const host = location.hostname;
+  warn(location.protocol === "http:" && host !== "localhost" && host !== "127.0.0.1"
+    ? `El navegador bloquea el micrófono en <code>${location.host}</code> porque no es un origen seguro. `
+      + `Abre <code>http://localhost:${location.port || 80}</code> (o sirve el panel por HTTPS, p. ej. con ngrok).`
+    : "Este navegador no expone <code>navigator.mediaDevices</code>. Prueba con Chrome o Firefox actualizado.");
 }
 
 // ── Orbe animado (portado del mockup Nocturne) ───────────────────────────────
@@ -293,7 +325,10 @@ async function start(){
       const m = JSON.parse(e.data);
       if (m.role === "user") addHistory(m.text);
       addTurn(m.role, m.text);
-      if (m.role === "agent"){ closeHistory(m.text); setSentiment(m.sentimiento); }
+      if (m.role === "agent"){
+        agentSpeaking = true; agentJSONAt = performance.now();
+        closeHistory(m.text); setSentiment(m.sentimiento);
+      }
     } else playMulaw(e.data);
   };
   ws.onclose = () => stop();
@@ -301,14 +336,27 @@ async function start(){
   stream = await navigator.mediaDevices.getUserMedia({audio:{channelCount:1}});
   ctx = new AudioContext();
   playCtx = new AudioContext({sampleRate: SR});
+  // Autoplay: el contexto puede nacer suspendido aunque venga de un clic.
+  await playCtx.resume(); await ctx.resume();
   const srcNode = ctx.createMediaStreamSource(stream);
   // ponytail: ScriptProcessorNode deprecado; migrar a AudioWorklet si da glitches.
   node = ctx.createScriptProcessor(4096, 1, 1);
   node.onaudioprocess = ev => {
     if (ws.readyState !== WebSocket.OPEN) return;
+    // No mandar el micrófono mientras suena el agente: si no, se escucha a sí
+    // mismo, transcribe su propia voz y el turno nunca cierra. (Barge-in real
+    // queda pendiente: exige cancelar el TTS y distinguir las dos voces.)
+    if (agentSpeaking){
+      const drained = playAt > 0 && playAt <= playCtx.currentTime;
+      if (drained || performance.now() - agentJSONAt > 6000){ agentSpeaking = false; }
+      else return;
+    }
     ws.send(downsample(ev.inputBuffer.getChannelData(0), ctx.sampleRate).buffer);
   };
-  srcNode.connect(node); node.connect(ctx.destination);
+  // El micrófono no se reproduce por los parlantes (ganancia 0), solo mantiene
+  // vivo el grafo de audio para que dispare onaudioprocess.
+  const mute = ctx.createGain(); mute.gain.value = 0;
+  srcNode.connect(node); node.connect(mute); mute.connect(ctx.destination);
 
   active = true;
   btn.textContent = "■ Colgar"; btn.classList.add("active");
@@ -322,14 +370,26 @@ function stop(){
   if (stream) stream.getTracks().forEach(t => t.stop());
   if (ctx) ctx.close(); if (playCtx) playCtx.close();
   if (ws && ws.readyState === WebSocket.OPEN) ws.close();
-  playAt = 0;
+  playAt = 0; agentSpeaking = false;
   closeHistory("Llamada finalizada.");
   btn.textContent = "▶ Iniciar llamada"; btn.classList.remove("active");
   document.body.classList.remove("in-call");
   statusEl.textContent = "Esperando la llamada";
 }
 
-btn.onclick = () => active ? stop() : start().catch(e => { alert("Micrófono: " + e); stop(); });
+const MIC_ERR = {
+  NotAllowedError: "Diste «bloquear» al permiso del micrófono. Habilítalo en el candado de la barra de direcciones y vuelve a intentar.",
+  NotFoundError: "No encontré ningún micrófono conectado.",
+  NotReadableError: "El micrófono está ocupado por otra aplicación.",
+};
+btn.onclick = () => {
+  if (active) return stop();
+  warnEl.classList.remove("show");
+  start().catch(e => {
+    stop();
+    warn(MIC_ERR[e.name] || `No pude abrir el micrófono: ${e.message || e}`);
+  });
+};
 </script>
 </body>
 </html>

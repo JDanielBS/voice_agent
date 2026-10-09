@@ -133,7 +133,11 @@ def _get_client():
     return AzureOpenAI(
         api_key=os.environ["AZURE_OPENAI_API_KEY"],
         api_version=os.environ["AZURE_OPENAI_API_VERSION"],
-        azure_endpoint=os.environ["AZURE_OPENAI_ENDPOINT"]
+        azure_endpoint=os.environ["AZURE_OPENAI_ENDPOINT"],
+        # Regla 12: sin esto el SDK espera 600 s y reintenta dos veces; un
+        # Azure lento congelaría la llamada entera en vez de dar la frase fija.
+        timeout=5.0,
+        max_retries=0,
     )
 
 

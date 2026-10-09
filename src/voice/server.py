@@ -20,8 +20,8 @@ load_dotenv()  # Cargar variables de entorno antes de importar modulos que usan 
 
 from src.agent.agent import process_turn
 from src.agent.state import manager as state_manager
-from src.voice.stt import StreamingSTT
-from src.voice.tts import synthesize_stream
+from src.voice.stt import STT_TIMEOUT_S, StreamingSTT
+from src.voice.tts import TTS_TIMEOUT_S, synthesize_stream
 from src.voice.vad import VAD
 
 app = FastAPI(title="Voice Agent API")
@@ -76,24 +76,50 @@ async def health():
 _FALLBACK = ("Disculpa, tuve un problema técnico al consultar la base de datos. "
              "¿Puedes repetir tu pregunta?")
 
+_TTS_DONE = object()
+
+def _next_chunk(gen):
+    """Avanza el generador sin dejar escapar StopIteration.
+
+    `asyncio.to_thread(next, gen)` cuelga la sesión: run_in_executor no puede
+    poner StopIteration en un Future (Python lo prohíbe con "StopIteration
+    interacts badly with generators") y el `await` nunca se reanuda. Resultado:
+    tras la primera respuesta el WebSocket dejaba de leer audio para siempre.
+    """
+    try:
+        return next(gen)
+    except StopIteration:
+        return _TTS_DONE
+
 async def _play_tts(ws: WebSocket, text: str) -> None:
     """Sintetiza y envía el audio (mulaw 8kHz) como frames binarios al navegador."""
     gen = synthesize_stream(text)
-    while True:
-        try:
-            chunk = await asyncio.to_thread(next, gen)
-        except StopIteration:
-            break
-        except Exception as e:
-            print(f"[TTS] Error: {e}")
-            break
-        
-        if chunk:
+    try:
+        while True:
             try:
-                await ws.send_bytes(chunk)
-            except Exception:
-                # El socket se cerró mientras enviábamos
+                chunk = await asyncio.wait_for(
+                    asyncio.to_thread(_next_chunk, gen), timeout=TTS_TIMEOUT_S
+                )
+            except asyncio.TimeoutError:
+                print("[TTS] Timeout esperando audio; se corta la respuesta.")
                 break
+            except Exception as e:
+                print(f"[TTS] Error: {e}")
+                break
+
+            if chunk is _TTS_DONE:
+                break
+            if chunk:
+                try:
+                    await ws.send_bytes(chunk)
+                except Exception:
+                    # El socket se cerró mientras enviábamos
+                    break
+    finally:
+        try:
+            gen.close()
+        except Exception:
+            pass
 
 @app.websocket("/demo")
 async def demo_endpoint(ws: WebSocket):
@@ -119,8 +145,17 @@ async def demo_endpoint(ws: WebSocket):
             if vad.process(pcm) != "speech_end":
                 continue
 
-            text = await asyncio.to_thread(stt.finish_and_get_text)
-            
+            # Regla 12: la transcripción no puede colgar el turno. Si Azure no
+            # responde en STT_TIMEOUT_S (+1 de margen) el turno se descarta y la
+            # sesión sigue escuchando.
+            try:
+                text = await asyncio.wait_for(
+                    asyncio.to_thread(stt.finish_and_get_text),
+                    timeout=STT_TIMEOUT_S + 1,
+                )
+            except asyncio.TimeoutError:
+                print(f"[STT] Timeout esperando la transcripción en {session_id}.")
+                text = ""
             # reiniciar STT/VAD para el próximo turno
             stt = StreamingSTT()
             stt.start()

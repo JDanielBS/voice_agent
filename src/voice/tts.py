@@ -1,81 +1,67 @@
-"""Azure Speech TTS — streaming.
+"""Azure Speech TTS — texto a audio mulaw 8kHz.
 
-Sintetiza texto a audio mulaw 8kHz para Twilio Media Streams.
-Timeout de 3s (Regla 12 de CLAUDE.md).
+Sintetiza el enunciado completo en memoria y lo entrega troceado a 400 ms.
+Timeout de 3 s (Regla 12 de CLAUDE.md).
+
+ponytail: no es streaming real. Se espera a que Azure cierre la síntesis
+(`speak_text_async(...).get()`) y luego se trocea `AudioDataStream`. La lectura
+en vivo de `PullAudioOutputStream.read()` se bloqueaba para siempre al llegar
+al EOF: dejaba un hilo atascado por turno y, al llenarse el pool, congelaba la
+sesión. Con respuestas de 1-2 frases el coste (<1,5 s) entra en presupuesto;
+si hay que hablar antes del primer fragmento, usar el evento `synthesizing`
+con una cola explícita, que sí cierra.
 """
 from __future__ import annotations
 
 import os
-import time
-from typing import Generator
 
 import azure.cognitiveservices.speech as speechsdk
 
 TTS_TIMEOUT_S = 3  # Regla 12
+
+CHUNK_BYTES = 3200  # 400 ms de mulaw a 8 kHz
 
 
 def _speech_config() -> speechsdk.SpeechConfig:
     key = os.environ["AZURE_SPEECH_KEY"]
     region = os.environ["AZURE_SPEECH_REGION"]
     config = speechsdk.SpeechConfig(subscription=key, region=region)
-    # Formato nativo para Twilio (mulaw 8kHz)
-    config.set_speech_synthesis_output_format(speechsdk.SpeechSynthesisOutputFormat.Raw8Khz8BitMonoMULaw)
+    # Formato nativo para el canal telefónico (mulaw 8 kHz)
+    config.set_speech_synthesis_output_format(
+        speechsdk.SpeechSynthesisOutputFormat.Raw8Khz8BitMonoMULaw)
     # Voz neuronal en español de Colombia
     config.speech_synthesis_voice_name = "es-CO-SalomeNeural"
     return config
 
 
-def synthesize_stream(text: str) -> Generator[bytes, None, None]:
-    """Sintetiza texto y genera chunks de audio en streaming (mulaw 8kHz)."""
+def synthesize_stream(text: str):
+    """Genera el audio mulaw 8 kHz del texto en chunks de 400 ms."""
     if not text.strip():
         return
 
-    config = _speech_config()
-    pull_stream = speechsdk.audio.PullAudioOutputStream()
-    stream_config = speechsdk.audio.AudioOutputConfig(stream=pull_stream)
-    
-    synthesizer = speechsdk.SpeechSynthesizer(speech_config=config, audio_config=stream_config)
+    # audio_config=None: sintetiza a memoria, sin dispositivo ni reproducción.
+    synthesizer = speechsdk.SpeechSynthesizer(
+        speech_config=_speech_config(), audio_config=None)
+    result = synthesizer.speak_text_async(text).get()
 
-    # Iniciar la síntesis
-    # No usamos speak_text_async() con wait simple porque queremos extraer audio
-    # a medida que se genera, pero debemos protegernos con el timeout.
-    
-    result_future = synthesizer.speak_text_async(text)
-    
-    # Preparar buffer de lectura
-    buffer_size = 3200  # 400ms de mulaw a 8kHz
-    audio_buffer = bytes(buffer_size)
-    
-    start_time = time.time()
-    first_chunk_received = False
-    
+    if result.reason != speechsdk.ResultReason.SynthesizingAudioCompleted:
+        print(f"[TTS] Síntesis no completada: {result.reason}")
+        return
+
+    stream = speechsdk.AudioDataStream(result)
+    # read_data escribe en el objeto `bytes` in-place (API del SDK).
+    buffer = bytes(CHUNK_BYTES)
     while True:
-        # Check timeout para el primer chunk
-        if not first_chunk_received and (time.time() - start_time) > TTS_TIMEOUT_S:
-            print("[TTS] Timeout esperando el primer chunk de audio.")
-            synthesizer.stop_speaking_async()
-            return
-            
-        bytes_read = pull_stream.read(audio_buffer)
-        if bytes_read == 0:
+        read = stream.read_data(buffer)
+        if read <= 0:
             break
-            
-        first_chunk_received = True
-        yield audio_buffer[:bytes_read]
-        
-    # Verificar si hubo un error al finalizar
-    try:
-        # Ya terminó, no debería bloquear
-        result = result_future.get()
-        if result.reason == speechsdk.ResultReason.Canceled:
-            print(f"[TTS] Síntesis cancelada: {result.cancellation_details.reason}")
-    except Exception as e:
-        print(f"[TTS] Error al finalizar la síntesis: {e}")
+        yield buffer[:read]
+
 
 if __name__ == "__main__":
     from dotenv import load_dotenv
     load_dotenv()
-    
+
     print("Sintetizando de prueba...")
-    chunks = list(synthesize_stream("Hola, esto es una prueba de síntesis en tiempo real."))
+    chunks = list(synthesize_stream("Hola, esto es una prueba de síntesis."))
     print(f"Total chunks: {len(chunks)}, Total bytes: {sum(len(c) for c in chunks)}")
