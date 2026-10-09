@@ -12,8 +12,11 @@ from __future__ import annotations
 import asyncio
 from pathlib import Path
 
+from dotenv import load_dotenv
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.responses import FileResponse
+
+load_dotenv()  # stt.py/tts.py leen os.environ directo; cargar antes de instanciarlos
 
 from src.agent.agent import process_turn
 from src.agent.state import manager as state_manager

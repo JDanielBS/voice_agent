@@ -3,60 +3,110 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Agente de Voz IPS — Panel</title>
+<title>Agente de Voz IPS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
+  /* Tokens Nocturne (subconjunto de _ds/.../styles.css) */
   :root{
-    --bg:#0e1117; --panel:#161b22; --line:#2a313c; --text:#e6edf3;
-    --muted:#9aa4b2; --accent:#3b82f6; --user:#1f6feb; --agent:#238636;
-    --neutro:#6b7280; --urgente:#ef4444; --frustrado:#f59e0b; --positivo:#22c55e;
+    --color-bg:#161826; --color-surface:#232532; --color-text:#e9e9ed;
+    --color-accent:#9184d9; --color-accent-200:#e7e5fe; --color-accent-300:#d2cefd;
+    --color-neutral-200:#e4e7f5; --color-neutral-400:#b2b6ca; --color-neutral-600:#75798c;
+    --color-divider:color-mix(in srgb,#e9e9ed 16%,transparent);
+    --font-heading:"Inter",system-ui,sans-serif; --font-body:"Inter",system-ui,sans-serif;
+    --radius-md:8px; --radius-lg:14px;
+    --sent-neutro:var(--color-neutral-400); --sent-urgente:#ef6a6a;
+    --sent-frustrado:#e0a44a; --sent-positivo:#6fcf8e;
   }
-  *{box-sizing:border-box}
-  body{margin:0;font:15px/1.5 system-ui,Segoe UI,sans-serif;background:var(--bg);color:var(--text);
-       display:flex;flex-direction:column;height:100vh}
-  header{padding:16px 20px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:16px}
-  header h1{font-size:17px;margin:0;font-weight:600}
-  .status{margin-left:auto;display:flex;align-items:center;gap:8px;color:var(--muted);font-size:13px}
-  .dot{width:9px;height:9px;border-radius:50%;background:var(--neutro)}
-  .dot.on{background:var(--positivo)}
-  #call{background:var(--accent);color:#fff;border:0;border-radius:8px;padding:10px 18px;
-        font-size:15px;font-weight:600;cursor:pointer}
-  #call.active{background:var(--urgente)}
-  #call:disabled{opacity:.5;cursor:default}
-  main{flex:1;display:flex;min-height:0}
-  #transcript{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:12px}
-  .msg{max-width:72%;padding:10px 14px;border-radius:12px;white-space:pre-wrap}
-  .msg.user{align-self:flex-end;background:var(--user)}
-  .msg.agent{align-self:flex-start;background:var(--panel);border:1px solid var(--line)}
-  .who{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:3px}
-  aside{width:240px;border-left:1px solid var(--line);padding:20px;background:var(--panel)}
-  aside h2{font-size:12px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin:0 0 10px}
-  #sentiment{font-size:22px;font-weight:700;padding:10px 14px;border-radius:10px;text-align:center;
-             background:var(--bg);border:1px solid var(--line)}
-  .empty{color:var(--muted);margin:auto;text-align:center}
+  *,*::before,*::after{box-sizing:border-box}
+  body{margin:0;height:100vh;background:var(--color-bg);color:var(--color-text);
+       font-family:var(--font-body);font-size:15px;line-height:1.55;display:flex}
+  h2{font-family:var(--font-heading);font-weight:500;margin:0}
+
+  /* Sidebar */
+  aside{width:252px;flex:none;display:flex;flex-direction:column;min-height:0;
+        border-right:1px solid var(--color-divider)}
+  .side-head{padding:30px 18px 12px;flex:none;font-size:11px;letter-spacing:.1em;
+             text-transform:uppercase;color:color-mix(in srgb,var(--color-text) 42%,transparent)}
+  #history{flex:1;min-height:0;overflow:auto;padding:0 10px 20px;display:flex;
+           flex-direction:column;gap:4px}
+  .hitem{display:flex;flex-direction:column;gap:5px;padding:10px 12px;border-radius:var(--radius-md);
+         border-left:2px solid var(--color-accent);background:var(--color-surface)}
+  .hitem .when{display:flex;align-items:baseline;gap:8px;font-size:12.5px;
+               color:color-mix(in srgb,var(--color-text) 55%,transparent);font-variant-numeric:tabular-nums}
+  .hitem .live{margin-left:auto;display:inline-flex;align-items:center;gap:5px;font-size:11px;
+               letter-spacing:.06em;text-transform:uppercase;color:var(--color-accent-200)}
+  .hitem .live span{width:6px;height:6px;border-radius:50%;background:var(--color-accent)}
+  .hitem .prev{font-size:13.5px;line-height:1.45;color:var(--color-text);
+               display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+
+  /* Centro */
+  main{flex:1;min-width:0;display:flex;flex-direction:column;align-items:center}
+  .title-wrap{display:flex;flex-direction:column;align-items:center;gap:5px;padding:34px 0 0;flex:none}
+  .title-wrap h2{font-size:28px;letter-spacing:-.015em}
+  #status{font-size:13px;letter-spacing:.06em;color:color-mix(in srgb,var(--color-text) 45%,transparent)}
+  #sent{font-size:11px;letter-spacing:.02em;padding:3px 10px;border-radius:6px;
+        background:var(--color-surface);color:var(--sent-neutro)}
+  #sent.hidden{display:none}
+  .orb-wrap{flex:none;padding:14px 0 6px}
+  #callbtn{font-family:var(--font-heading);font-weight:500;font-size:14px;cursor:pointer;
+           color:var(--color-accent);background:transparent;border:1px solid var(--color-accent);
+           padding:9px 20px;border-radius:var(--radius-md);margin-bottom:6px}
+  #callbtn:hover{background:color-mix(in srgb,var(--color-accent) 12%,transparent)}
+  #callbtn.active{color:var(--sent-urgente);border-color:var(--sent-urgente)}
+  #callbtn.active:hover{background:color-mix(in srgb,var(--sent-urgente) 12%,transparent)}
+
+  #transcript{flex:1;min-height:0;width:680px;max-width:92vw;overflow:auto;padding:10px 0 40px;
+              display:flex;flex-direction:column;gap:20px;
+              mask-image:linear-gradient(to bottom,transparent 0,#000 28px)}
+  .empty{margin:auto;font-size:15px;color:color-mix(in srgb,var(--color-text) 38%,transparent)}
+  .turn{display:flex;flex-direction:column;gap:5px;max-width:82%}
+  .turn .who{font-size:11.5px;letter-spacing:.1em;text-transform:uppercase}
+  .turn .text{font-size:20px;line-height:1.5;text-wrap:pretty}
+  .turn.user .who{color:var(--color-neutral-400)}
+  .turn.user .text{color:var(--color-neutral-200)}
+  .turn.agent{align-self:flex-end;text-align:right}
+  .turn.agent .who{color:var(--color-accent-300)}
 </style>
 </head>
 <body>
-<header>
-  <h1>Agente de Voz · Capacidad instalada IPS</h1>
-  <button id="call">▶ Iniciar llamada</button>
-  <div class="status"><span class="dot" id="dot"></span><span id="st">en espera</span></div>
-</header>
+<aside>
+  <div class="side-head">Conversación</div>
+  <div id="history"></div>
+</aside>
 <main>
+  <div class="title-wrap">
+    <h2>Agente virtual IPS</h2>
+    <div id="status">Esperando la llamada</div>
+    <div id="sent" class="hidden">neutro</div>
+  </div>
+  <div class="orb-wrap"><svg id="orb" viewBox="0 0 300 300" style="width:300px;height:300px;display:block;overflow:visible">
+    <defs>
+      <radialGradient id="orbFill"><stop offset="0%" stop-color="#9184d9" stop-opacity="0.2"/>
+        <stop offset="70%" stop-color="#9184d9" stop-opacity="0.08"/>
+        <stop offset="100%" stop-color="#9184d9" stop-opacity="0"/></radialGradient>
+      <filter id="orbBlur" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur id="orbBlurG" stdDeviation="8"/></filter>
+    </defs>
+    <path id="orbGlow" fill="#9184d9"/>
+    <path id="orbPath" fill="url(#orbFill)" stroke-width="1.5"/>
+    <circle id="orbCore" cx="150" cy="150" fill="none" stroke="var(--color-accent)" stroke-width="1"/>
+  </svg></div>
+  <button id="callbtn">▶ Iniciar llamada</button>
   <div id="transcript"><div class="empty">Pulsa «Iniciar llamada» y habla.</div></div>
-  <aside>
-    <h2>Sentimiento</h2>
-    <div id="sentiment" style="color:var(--neutro)">—</div>
-  </aside>
 </main>
 <script>
-const SR = 8000;                       // el motor (VAD/STT) trabaja a 8kHz
-const btn = document.getElementById("call");
+const SR = 8000;
+const btn = document.getElementById("callbtn");
+const statusEl = document.getElementById("status");
+const sentEl = document.getElementById("sent");
 const transcript = document.getElementById("transcript");
-const dot = document.getElementById("dot"), st = document.getElementById("st");
-const sentEl = document.getElementById("sentiment");
+const history = document.getElementById("history");
+const orbPath = document.getElementById("orbPath"), orbGlow = document.getElementById("orbGlow"),
+      orbCore = document.getElementById("orbCore"), orbBlurG = document.getElementById("orbBlurG");
 let ws, ctx, playCtx, node, stream, playAt = 0, active = false;
+let userLevelTime = 0, tick = 0;
 
-// Tabla de decodificación mu-law G.711 (espejo de src/voice/mulaw.py)
+// Tabla mu-law G.711 (espejo de src/voice/mulaw.py)
 const MULAW = (() => {
   const t = new Int16Array(256);
   for (let b = 0; b < 256; b++){
@@ -67,42 +117,95 @@ const MULAW = (() => {
   return t;
 })();
 
-function addMsg(role, text){
+// ── Orbe animado (portado del mockup Nocturne) ───────────────────────────────
+const STATUS = {
+  idle:"En silencio", user:"Escuchando al usuario", agent:"El agente está respondiendo"
+};
+function speaker(){
+  if (!active) return "off";
+  if (playCtx && playAt > playCtx.currentTime + 0.05) return "agent";
+  if (performance.now() - userLevelTime < 300) return "user";
+  return "idle";
+}
+function drawOrb(){
+  tick++;
+  const sp = speaker();
+  const agent = sp === "agent", user = sp === "user";
+  const c = 150, base = 96, t = tick * 0.09, N = 72, pts = [];
+  for (let i = 0; i < N; i++){
+    const a = (i / N) * Math.PI * 2; let r = base;
+    if (agent) r += 9*Math.sin(3*a+t*2.1) + 6*Math.sin(5*a-t*1.4) + 4.5*Math.sin(8*a+t*3.1) + 3*Math.sin(13*a-t*2.4);
+    else if (user) r += 2.2*Math.sin(2*a+t*0.9);
+    else r += 1.4*Math.sin(2*a+t*0.5);
+    pts.push([c + r*Math.cos(a), c + r*Math.sin(a)]);
+  }
+  let d = `M ${pts[0][0].toFixed(2)} ${pts[0][1].toFixed(2)}`;
+  for (let i = 0; i < N; i++){
+    const p0 = pts[i], p1 = pts[(i+1)%N];
+    d += ` Q ${p0[0].toFixed(2)} ${p0[1].toFixed(2)} ${((p0[0]+p1[0])/2).toFixed(2)} ${((p0[1]+p1[1])/2).toFixed(2)}`;
+  }
+  d += " Z";
+  const breath = 0.5 + 0.5*Math.sin(tick*(agent?0.3:0.1));
+  const stroke = agent ? "var(--color-accent)" : user ? "var(--color-neutral-400)" : "var(--color-neutral-600)";
+  const glow = agent ? 0.42+0.26*breath : user ? 0.16 : 0.1;
+  orbPath.setAttribute("d", d); orbGlow.setAttribute("d", d);
+  orbPath.setAttribute("stroke", stroke);
+  orbPath.setAttribute("stroke-opacity", agent ? 0.95 : 0.55);
+  orbGlow.setAttribute("opacity", glow*0.5);
+  orbBlurG.setAttribute("stdDeviation", agent ? 14 : 8);
+  orbCore.setAttribute("r", (base*(agent?0.52+0.03*breath:0.5)).toFixed(2));
+  orbCore.setAttribute("stroke-opacity", agent ? 0.3 : 0.12);
+  if (active) statusEl.textContent = STATUS[sp] || STATUS.idle;
+  requestAnimationFrame(drawOrb);
+}
+requestAnimationFrame(drawOrb);
+
+// ── Transcripción + sidebar ─────────────────────────────────────────────────
+function addTurn(role, text){
   const empty = transcript.querySelector(".empty"); if (empty) empty.remove();
   const el = document.createElement("div");
-  el.className = "msg " + role;
-  el.innerHTML = `<div class="who">${role === "user" ? "Usuario" : "Agente"}</div>`;
-  el.appendChild(document.createTextNode(text));
+  el.className = "turn " + (role === "user" ? "user" : "agent");
+  el.innerHTML = `<span class="who">${role === "user" ? "Usuario" : "Agente"}</span>`;
+  const tx = document.createElement("span"); tx.className = "text"; tx.textContent = text;
+  el.appendChild(tx);
   transcript.appendChild(el);
   transcript.scrollTop = transcript.scrollHeight;
 }
-
-const SENT = {neutro:"--neutro", urgente:"--urgente", frustrado:"--frustrado", positivo:"--positivo"};
+function addHistory(text){
+  const el = document.createElement("div");
+  el.className = "hitem";
+  const now = new Date().toLocaleTimeString("es-CO", {hour:"2-digit", minute:"2-digit"});
+  el.innerHTML = `<div class="when">${now}<span class="live"><span></span>En curso</span></div>`
+               + `<div class="prev"></div>`;
+  el.querySelector(".prev").textContent = text;
+  history.prepend(el);
+}
+const SENT = {neutro:"--sent-neutro", urgente:"--sent-urgente", frustrado:"--sent-frustrado", positivo:"--sent-positivo"};
 function setSentiment(s){
-  const color = getComputedStyle(document.documentElement).getPropertyValue(SENT[s] || "--neutro");
-  sentEl.textContent = s || "neutro"; sentEl.style.color = color;
+  sentEl.classList.remove("hidden");
+  sentEl.textContent = s || "neutro";
+  sentEl.style.color = `var(${SENT[s] || "--sent-neutro"})`;
 }
 
-// mulaw 8kHz -> reproducir en el navegador
+// ── Audio ────────────────────────────────────────────────────────────────────
 function playMulaw(buf){
   const u = new Uint8Array(buf);
   const pcm = playCtx.createBuffer(1, u.length, SR);
   const ch = pcm.getChannelData(0);
   for (let i = 0; i < u.length; i++) ch[i] = MULAW[u[i]] / 32768;
   const src = playCtx.createBufferSource(); src.buffer = pcm; src.connect(playCtx.destination);
-  const now = playCtx.currentTime;
-  if (playAt < now) playAt = now;
+  const now = playCtx.currentTime; if (playAt < now) playAt = now;
   src.start(playAt); playAt += pcm.duration;
 }
-
-// Float32 (sampleRate del contexto) -> Int16 PCM a 8kHz
 function downsample(f32, inRate){
   const ratio = inRate / SR, outLen = Math.floor(f32.length / ratio);
-  const out = new Int16Array(outLen);
+  const out = new Int16Array(outLen); let sum = 0;
   for (let i = 0; i < outLen; i++){
     const v = f32[Math.floor(i * ratio)];
     out[i] = Math.max(-1, Math.min(1, v)) * 32767;
+    sum += v * v;
   }
+  if (Math.sqrt(sum / outLen) > 0.02) userLevelTime = performance.now();  // ilumina el orbe
   return out;
 }
 
@@ -112,11 +215,10 @@ async function start(){
   ws.onmessage = e => {
     if (typeof e.data === "string"){
       const m = JSON.parse(e.data);
-      addMsg(m.role, m.text);
+      if (m.role === "user") addHistory(m.text);
+      addTurn(m.role, m.text);
       if (m.role === "agent") setSentiment(m.sentimiento);
-    } else {
-      playMulaw(e.data);
-    }
+    } else playMulaw(e.data);
   };
   ws.onclose = () => stop();
 
@@ -124,8 +226,7 @@ async function start(){
   ctx = new AudioContext();
   playCtx = new AudioContext({sampleRate: SR});
   const srcNode = ctx.createMediaStreamSource(stream);
-  // ponytail: ScriptProcessorNode está deprecado; migrar a AudioWorklet si da
-  // glitches. Para la demo funciona en todos los navegadores sin archivo extra.
+  // ponytail: ScriptProcessorNode deprecado; migrar a AudioWorklet si da glitches.
   node = ctx.createScriptProcessor(4096, 1, 1);
   node.onaudioprocess = ev => {
     if (ws.readyState !== WebSocket.OPEN) return;
@@ -135,7 +236,6 @@ async function start(){
 
   active = true;
   btn.textContent = "■ Colgar"; btn.classList.add("active");
-  dot.classList.add("on"); st.textContent = "en llamada";
 }
 
 function stop(){
@@ -145,8 +245,9 @@ function stop(){
   if (stream) stream.getTracks().forEach(t => t.stop());
   if (ctx) ctx.close(); if (playCtx) playCtx.close();
   if (ws && ws.readyState === WebSocket.OPEN) ws.close();
+  playAt = 0;
   btn.textContent = "▶ Iniciar llamada"; btn.classList.remove("active");
-  dot.classList.remove("on"); st.textContent = "en espera";
+  statusEl.textContent = "Esperando la llamada";
 }
 
 btn.onclick = () => active ? stop() : start().catch(e => { alert("Micrófono: " + e); stop(); });
