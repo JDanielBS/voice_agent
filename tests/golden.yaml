@@ -78,3 +78,7 @@ preguntas:
   - id: 20
     desc: "Agregado por nivel de atención"
     input: "¿Cuántas camas hay por nivel de atención en el Amazonas?"
+
+  - id: 21
+    desc: "Varias categorías por separado en un mismo lugar"
+    input: "dime camas, consultorios y ambulancias por separado en Pereira"
