@@ -2,3 +2,5 @@ requests
 psycopg[binary]
 python-dotenv
 pandas
+fastapi
+uvicorn
