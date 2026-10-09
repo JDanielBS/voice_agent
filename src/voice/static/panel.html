@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Agente de Voz IPS — Panel</title>
+<style>
+  :root{
+    --bg:#0e1117; --panel:#161b22; --line:#2a313c; --text:#e6edf3;
+    --muted:#9aa4b2; --accent:#3b82f6; --user:#1f6feb; --agent:#238636;
+    --neutro:#6b7280; --urgente:#ef4444; --frustrado:#f59e0b; --positivo:#22c55e;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font:15px/1.5 system-ui,Segoe UI,sans-serif;background:var(--bg);color:var(--text);
+       display:flex;flex-direction:column;height:100vh}
+  header{padding:16px 20px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:16px}
+  header h1{font-size:17px;margin:0;font-weight:600}
+  .status{margin-left:auto;display:flex;align-items:center;gap:8px;color:var(--muted);font-size:13px}
+  .dot{width:9px;height:9px;border-radius:50%;background:var(--neutro)}
+  .dot.on{background:var(--positivo)}
+  #call{background:var(--accent);color:#fff;border:0;border-radius:8px;padding:10px 18px;
+        font-size:15px;font-weight:600;cursor:pointer}
+  #call.active{background:var(--urgente)}
+  #call:disabled{opacity:.5;cursor:default}
+  main{flex:1;display:flex;min-height:0}
+  #transcript{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:12px}
+  .msg{max-width:72%;padding:10px 14px;border-radius:12px;white-space:pre-wrap}
+  .msg.user{align-self:flex-end;background:var(--user)}
+  .msg.agent{align-self:flex-start;background:var(--panel);border:1px solid var(--line)}
+  .who{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:3px}
+  aside{width:240px;border-left:1px solid var(--line);padding:20px;background:var(--panel)}
+  aside h2{font-size:12px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin:0 0 10px}
+  #sentiment{font-size:22px;font-weight:700;padding:10px 14px;border-radius:10px;text-align:center;
+             background:var(--bg);border:1px solid var(--line)}
+  .empty{color:var(--muted);margin:auto;text-align:center}
+</style>
+</head>
+<body>
+<header>
+  <h1>Agente de Voz · Capacidad instalada IPS</h1>
+  <button id="call">▶ Iniciar llamada</button>
+  <div class="status"><span class="dot" id="dot"></span><span id="st">en espera</span></div>
+</header>
+<main>
+  <div id="transcript"><div class="empty">Pulsa «Iniciar llamada» y habla.</div></div>
+  <aside>
+    <h2>Sentimiento</h2>
+    <div id="sentiment" style="color:var(--neutro)">—</div>
+  </aside>
+</main>
+<script>
+const SR = 8000;                       // el motor (VAD/STT) trabaja a 8kHz
+const btn = document.getElementById("call");
+const transcript = document.getElementById("transcript");
+const dot = document.getElementById("dot"), st = document.getElementById("st");
+const sentEl = document.getElementById("sentiment");
+let ws, ctx, playCtx, node, stream, playAt = 0, active = false;
+
+// Tabla de decodificación mu-law G.711 (espejo de src/voice/mulaw.py)
+const MULAW = (() => {
+  const t = new Int16Array(256);
+  for (let b = 0; b < 256; b++){
+    const u = ~b & 0xFF, sign = u & 0x80, exp = (u >> 4) & 0x07, man = u & 0x0F;
+    let s = ((man << 3) + 132) << exp; s -= 132;
+    t[b] = sign ? -s : s;
+  }
+  return t;
+})();
+
+function addMsg(role, text){
+  const empty = transcript.querySelector(".empty"); if (empty) empty.remove();
+  const el = document.createElement("div");
+  el.className = "msg " + role;
+  el.innerHTML = `<div class="who">${role === "user" ? "Usuario" : "Agente"}</div>`;
+  el.appendChild(document.createTextNode(text));
+  transcript.appendChild(el);
+  transcript.scrollTop = transcript.scrollHeight;
+}
+
+const SENT = {neutro:"--neutro", urgente:"--urgente", frustrado:"--frustrado", positivo:"--positivo"};
+function setSentiment(s){
+  const color = getComputedStyle(document.documentElement).getPropertyValue(SENT[s] || "--neutro");
+  sentEl.textContent = s || "neutro"; sentEl.style.color = color;
+}
+
+// mulaw 8kHz -> reproducir en el navegador
+function playMulaw(buf){
+  const u = new Uint8Array(buf);
+  const pcm = playCtx.createBuffer(1, u.length, SR);
+  const ch = pcm.getChannelData(0);
+  for (let i = 0; i < u.length; i++) ch[i] = MULAW[u[i]] / 32768;
+  const src = playCtx.createBufferSource(); src.buffer = pcm; src.connect(playCtx.destination);
+  const now = playCtx.currentTime;
+  if (playAt < now) playAt = now;
+  src.start(playAt); playAt += pcm.duration;
+}
+
+// Float32 (sampleRate del contexto) -> Int16 PCM a 8kHz
+function downsample(f32, inRate){
+  const ratio = inRate / SR, outLen = Math.floor(f32.length / ratio);
+  const out = new Int16Array(outLen);
+  for (let i = 0; i < outLen; i++){
+    const v = f32[Math.floor(i * ratio)];
+    out[i] = Math.max(-1, Math.min(1, v)) * 32767;
+  }
+  return out;
+}
+
+async function start(){
+  ws = new WebSocket(`ws://${location.host}/demo`);
+  ws.binaryType = "arraybuffer";
+  ws.onmessage = e => {
+    if (typeof e.data === "string"){
+      const m = JSON.parse(e.data);
+      addMsg(m.role, m.text);
+      if (m.role === "agent") setSentiment(m.sentimiento);
+    } else {
+      playMulaw(e.data);
+    }
+  };
+  ws.onclose = () => stop();
+
+  stream = await navigator.mediaDevices.getUserMedia({audio:{channelCount:1}});
+  ctx = new AudioContext();
+  playCtx = new AudioContext({sampleRate: SR});
+  const srcNode = ctx.createMediaStreamSource(stream);
+  // ponytail: ScriptProcessorNode está deprecado; migrar a AudioWorklet si da
+  // glitches. Para la demo funciona en todos los navegadores sin archivo extra.
+  node = ctx.createScriptProcessor(4096, 1, 1);
+  node.onaudioprocess = ev => {
+    if (ws.readyState !== WebSocket.OPEN) return;
+    ws.send(downsample(ev.inputBuffer.getChannelData(0), ctx.sampleRate).buffer);
+  };
+  srcNode.connect(node); node.connect(ctx.destination);
+
+  active = true;
+  btn.textContent = "■ Colgar"; btn.classList.add("active");
+  dot.classList.add("on"); st.textContent = "en llamada";
+}
+
+function stop(){
+  if (!active) return;
+  active = false;
+  if (node) node.disconnect();
+  if (stream) stream.getTracks().forEach(t => t.stop());
+  if (ctx) ctx.close(); if (playCtx) playCtx.close();
+  if (ws && ws.readyState === WebSocket.OPEN) ws.close();
+  btn.textContent = "▶ Iniciar llamada"; btn.classList.remove("active");
+  dot.classList.remove("on"); st.textContent = "en espera";
+}
+
+btn.onclick = () => active ? stop() : start().catch(e => { alert("Micrófono: " + e); stop(); });
+</script>
+</body>
+</html>

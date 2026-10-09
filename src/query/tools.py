@@ -47,13 +47,15 @@ def _exigir_columna(cols: dict, name: str) -> dict:
         raise ValueError(f"columna desconocida: {name!r}") from None
 
 
-def _exigir_dimension(cols: dict, name: str) -> dict:
-    """Para group_by: agrupar por un identificador de alta cardinalidad
-    (nombre, email, código) no tiene sentido por voz, exploraría miles de
-    grupos. Esto se mantiene restringido a dimensión cerrada/abierta."""
+def _exigir_enumerable(cols: dict, name: str) -> dict:
+    """Para list_values: enumerar valores distintos de una columna. Se permite
+    identificador (ej. 'gerente') porque bajo un filtro ("gerentes en Manizales")
+    el conjunto es pequeño; el LIMIT 5 + total acota la respuesta igual que una
+    dimensión. Sin filtro, un identificador explotaría a miles: lo frena el
+    agente (prompt), no esta validación, para que el filtro sí lo habilite."""
     col = _exigir_columna(cols, name)
-    if col["role"] not in DIM_ROLES:
-        raise ValueError(f"{name!r} no es dimensión agrupable (rol: {col['role']})")
+    if col["role"] not in (*DIM_ROLES, "identifier"):
+        raise ValueError(f"{name!r} no es enumerable (rol: {col['role']})")
     return col
 
 
@@ -263,19 +265,29 @@ def lookup_fuzzy_sql(text_query: str, filters: dict, limit: int = MAX_RESULTS,
     return sql, sim_params + params + or_params + [_pin(limit)]
 
 
-def list_values_sql(dimension: str, schema: dict | None = None):
+def list_values_sql(dimension: str, filters: dict | None = None,
+                    schema: dict | None = None):
     schema = schema or load_schema()
-    col = _exigir_dimension(_columnas(schema), dimension)
-    if col["role"] == "closed_dimension":
-        return None, []  # valores ya enumerados en schema.json: cero consultas
+    cols = _columnas(schema)
+    col = _exigir_enumerable(cols, dimension)
+    filters = filters or {}
+    # Dimensión cerrada SIN filtro: valores ya en schema.json, cero consultas.
+    # Con filtro hay que ir a la base (los valores presentes bajo ese filtro
+    # son un subconjunto que schema.json no conoce).
+    if col["role"] == "closed_dimension" and not filters:
+        return None, []
     # COUNT(*) OVER() se calcula ANTES del DISTINCT externo si va en la misma
     # consulta: cuenta filas totales, no valores únicos (bug real: reportaba
     # "38300 valores" para municipio en vez de ~1027). El DISTINCT va en una
     # subconsulta y se cuenta aparte, sobre el resultado ya deduplicado.
+    fwhere, fparams = _where(filters, cols)  # " WHERE data @> ..." o ""
+    inner_where = " WHERE data->>%s IS NOT NULL"
+    if fwhere:
+        inner_where += " AND" + fwhere[len(" WHERE"):]
     sql = ("SELECT v, COUNT(*) OVER () AS total FROM "
-           "(SELECT DISTINCT data->>%s AS v FROM raw_records WHERE data->>%s IS NOT NULL) t "
+           f"(SELECT DISTINCT data->>%s AS v FROM raw_records{inner_where}) t "
            "ORDER BY v LIMIT %s")
-    return sql, [dimension, dimension, MAX_RESULTS]
+    return sql, [dimension, dimension] + fparams + [MAX_RESULTS]
 
 
 # ── Ejecución ────────────────────────────────────────────────────────────────
@@ -340,13 +352,40 @@ def lookup(text_query: str, filters: dict | None = None,
     return {"total": total, "filas": [r[0] for r in rows]}
 
 
-def list_values(dimension: str) -> dict:
+import re as _re
+
+# Escape hatch (rompe regla #2 a propósito): el LLM genera un SELECT solo
+# cuando ninguna de las 4 tools sirve. La seguridad real es el rol read-only
+# (GRANT SELECT) + statement_timeout; este guard es cinturón: un solo SELECT,
+# sin ';' ni verbos de escritura. c/valores los pone el LLM.
+# ponytail: sin resolución de valores dentro del SQL libre (casing); el prompt
+# manda ILIKE. Añadir normalización si aparecen fallos por acentos/mayúsculas.
+_SELECT_OK = _re.compile(r"^\s*select\b", _re.I)
+_PROHIBIDO = _re.compile(r"\b(insert|update|delete|drop|alter|create|grant|"
+                         r"revoke|truncate|copy|merge|call|do)\b", _re.I)
+SQL_MAX_ROWS = 50
+
+
+def run_sql(sql: str) -> dict:
+    sql = (sql or "").strip().rstrip(";")
+    if not _SELECT_OK.match(sql) or ";" in sql or _PROHIBIDO.search(sql):
+        raise ValueError("solo se permite un único SELECT de lectura")
+    with _connect() as conn:
+        cur = conn.execute(sql)
+        cols = [d.name for d in cur.description] if cur.description else []
+        rows = cur.fetchmany(SQL_MAX_ROWS)
+    filas = [dict(zip(cols, r)) for r in rows]
+    return {"columns": cols, "filas": filas, "total": len(filas)}
+
+
+def list_values(dimension: str, filters: dict | None = None) -> dict:
     schema = load_schema()
-    col = _exigir_dimension(_columnas(schema), dimension)
-    if col["role"] == "closed_dimension":
+    col = _exigir_enumerable(_columnas(schema), dimension)
+    filters = filters or {}
+    if col["role"] == "closed_dimension" and not filters:
         vals = list(col.get("values", []))
         return {"total": len(vals), "values": vals}
-    sql, params = list_values_sql(dimension, schema)
+    sql, params = list_values_sql(dimension, filters, schema)
     with _connect() as conn:
         rows = conn.execute(sql, params).fetchall()
     total = rows[0][1] if rows else 0
@@ -377,7 +416,6 @@ def demo():
         (lambda: aggregate_sql("capacidad", [], {"fuente": "x"}), "filtro"),
         (lambda: count_sql({"capacidad": 1}), "filtro medida"),
         (lambda: lookup_sql("  ", {}), "text_query"),
-        (lambda: list_values_sql("codigo"), "list_values"),
     ]:
         try:
             fn()
@@ -421,10 +459,33 @@ def demo():
     assert '"codigo": "504512253"' in params[0], params
     print("ok: count admite filtro por identificador exacto")
 
-    # cerrada no toca la base
-    sql, _ = list_values_sql("depto", falso)
+    # consulta_sql: el guard rechaza todo lo que no sea un único SELECT (antes
+    # de abrir conexión), la seguridad real es el rol read-only.
+    for mala in ["DELETE FROM raw_records", "SELECT 1; DROP TABLE raw_records",
+                 "UPDATE raw_records SET data='{}'", "  truncate raw_records"]:
+        try:
+            run_sql(mala)
+        except ValueError:
+            pass
+        else:
+            raise AssertionError(f"no rechazó SQL peligroso: {mala!r}")
+    print("ok: consulta_sql rechaza escrituras y multi-statement")
+
+    # cerrada SIN filtro no toca la base
+    sql, _ = list_values_sql("depto", schema=falso)
     assert sql is None
-    print("ok: list_values de dimensión cerrada no genera SQL")
+    print("ok: list_values de dimensión cerrada (sin filtro) no genera SQL")
+
+    # identificador enumerable SOLO con filtro (ej. gerentes en un municipio)
+    sql, params = list_values_sql("codigo", {"muni": "Leticia"}, falso)
+    assert sql and "DISTINCT" in sql, sql
+    assert '{"muni": "Leticia"}' in params, params
+    print("ok: list_values enumera identificador bajo filtro:", params)
+
+    # cerrada CON filtro sí va a la base (subconjunto presente bajo el filtro)
+    sql, _ = list_values_sql("depto", {"muni": "Leticia"}, falso)
+    assert sql and "DISTINCT" in sql, sql
+    print("ok: list_values de dimensión cerrada con filtro genera SQL")
 
 
 if __name__ == "__main__":

@@ -537,6 +537,19 @@ def render_list_values(result: dict, dimension: str | None = None) -> str:
     return texto
 
 
+def render_sql(result: dict) -> str:
+    """Vuelca filas crudas de consulta_sql a texto plano. Crudo a propósito:
+    el redactor (segundo salto) lo convierte en respuesta hablada."""
+    filas = result.get("filas") or []
+    if not filas:
+        return "La consulta no devolvió resultados."
+    partes = []
+    for fila in filas[:5]:
+        partes.append("; ".join(f"{k}: {v}" for k, v in fila.items() if v not in (None, "")))
+    cola = f" (y {len(filas) - 5} más)" if len(filas) > 5 else ""
+    return f"{len(filas)} resultado(s). " + " | ".join(partes) + cola
+
+
 def componer(piezas: list[dict]) -> str:
     """Une las piezas de un mismo turno sin repetir el contexto compartido.
 

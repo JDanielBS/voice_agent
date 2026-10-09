@@ -25,9 +25,10 @@ class ConversationState:
         self.last_tool: str | None = None
         self.last_tool_args: dict | None = None
         self.last_response: str | None = None
+        self.last_sentimiento: str = "neutro"  # lo lee el panel de demo
         self.pending_disambiguation: dict | None = None
         self.pending_correction: dict | None = None
-        
+
         self.turns_left: int = TTL_TURNS
         self.last_accessed: float = time.time()
         self.history: list[dict] = []  # Ventana deslizante de HISTORY_MAX mensajes
@@ -93,6 +94,7 @@ class ConversationState:
         self.last_tool = None
         self.last_tool_args = None
         self.last_response = None
+        self.last_sentimiento = "neutro"
         self.pending_disambiguation = None
         self.pending_correction = None
         self.turns_left = TTL_TURNS

@@ -32,6 +32,7 @@ Reglas:
 10. PROHIBIDO responder con la palabra 'camas' (u otra categoría) si la tool no la devolvió. Para explicar una cifra anterior usa solo la medida y los filtros que aparecen en el contexto de slots.
 11. En CADA llamada a tool incluye 'sentimiento' según el tono del usuario: 'urgente' (afán, prisa, "rápido"), 'frustrado' (queja, "ya te pregunté", "no entiendo"), 'positivo' (saludo amable, entusiasmo) o 'neutro'. Es para adaptar el tono de la respuesta.
 12. En CADA llamada a tool incluye 'necesita_interpretacion' en true SOLO si, además del dato, el usuario pidió su significado, interpretación o contexto (ej. "¿qué significa esa cifra?", "interpreta ese resultado", "explícame qué implica"). Si solo pide el dato (el caso normal), déjalo en false. No afecta qué tool llamas, solo si el sistema agrega una explicación después.
+13. PREFIERE SIEMPRE aggregate/count/lookup/list_values. Solo si NINGUNA puede responder (cruces o agregaciones que no encajan en esas 4), usa consulta_sql con un único SELECT de lectura sobre raw_records (columna 'data' jsonb): accede campos con data->>'columna', suma con SUM((data->>'num_cantidad_capacidad_instalada')::double precision), y para texto usa ILIKE '%valor%' porque los valores están en MAYÚSCULAS. Nunca escribas en la base.
 
 Columnas disponibles en la base de datos:
 {schema_info}
@@ -58,6 +59,10 @@ Llamada: lookup con el MISMO text_query/filtro ya usado (no inventes otra tool; 
 Usuario: "¿Qué tipos de capacidad hay?"
 Llamada: list_values(dimension="nom_grupo_capacidad")
 
+Usuario: "¿Quiénes son los gerentes en Manizales?" o "dime los prestadores de Leticia"
+Llamada: list_values(dimension="gerente", filters={{"municipio": "Manizales"}})
+(enumerar un identificador SIEMPRE con un filtro que lo acote; nunca sin filtro)
+
 Usuario (tras "camas en Leticia"): "¿y las ambulancias?"
 Llamada: aggregate(measure="num_cantidad_capacidad_instalada", filters={{"municipio": "Leticia", "nom_grupo_capacidad": "AMBULANCIAS"}}, group_by=[])
 
@@ -72,6 +77,9 @@ Llamada: aggregate(measure="num_cantidad_capacidad_instalada", group_by=["nombre
 
 Usuario: "¿cuántas camas hay en Chocó y qué significa esa cifra?"
 Llamada: aggregate(measure="num_cantidad_capacidad_instalada", filters={{"departamento": "Chocó", "nom_grupo_capacidad": "CAMAS"}}, necesita_interpretacion=true)
+
+Usuario (algo que las 4 tools no cubren, ej. promedio de camas por sede en Nariño):
+Llamada: consulta_sql(sql="SELECT AVG((data->>'num_cantidad_capacidad_instalada')::double precision) FROM raw_records WHERE data->>'departamento' ILIKE '%NARINO%' AND data->>'nom_grupo_capacidad' ILIKE '%CAMAS%'")
 """
 
 def generate_prompt(schema_path: Path | None = None) -> str:
@@ -102,8 +110,10 @@ def generate_prompt(schema_path: Path | None = None) -> str:
             "- Identificadores: " + ", ".join(identificadores) +
             ". Buscables con lookup (texto libre o código exacto) y filtrables "
             "en count/aggregate. También sirven como group_by en aggregate para "
-            "RANKING (ej. 'qué IPS tiene más camas'); no uses list_values con "
-            "ellos (son para enumerar una dimensión cerrada/abierta, no miles de nombres).")
+            "RANKING (ej. 'qué IPS tiene más camas'). Para ENUMERARLOS ('quiénes "
+            "son los gerentes en X', 'qué prestadores hay en X') usa list_values "
+            "con un filtro que acote (ej. municipio); sin filtro no los enumeres "
+            "(son miles de nombres).")
 
     schema_info = "\n".join(lines)
     prompt = BASE_PROMPT.format(schema_info=schema_info)

@@ -78,15 +78,31 @@ TOOLS_DEF = [
         "type": "function",
         "function": {
             "name": "list_values",
-            "description": "Listar los valores disponibles para una dimensión.",
+            "description": "Listar los valores distintos de una columna, opcionalmente filtrados. Úsalo para '¿quiénes/qué X hay en Y?' (ej. gerentes, prestadores o sedes en un municipio).",
             "parameters": {
                 "type": "object",
                 "properties": {
                     "dimension": {"type": "string"},
+                    "filters": {"type": "object"},
                     "sentimiento": {"type": "string", "enum": ["neutro", "urgente", "frustrado", "positivo"], "description": "Tono de voz / sentimiento del usuario."},
                     "necesita_interpretacion": {"type": "boolean", "description": "true si, además del dato, el usuario pidió su significado o interpretación."}
                 },
                 "required": ["dimension"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "consulta_sql",
+            "description": "ÚLTIMO RECURSO: solo si NINGUNA de las otras tools puede responder. Genera un único SELECT de lectura sobre la tabla raw_records (columna 'data' jsonb). Accede campos con data->>'columna'; para texto usa ILIKE '%valor%' (los valores se guardan en MAYÚSCULAS). Nunca escribas (INSERT/UPDATE/...).",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "sql": {"type": "string", "description": "Un SELECT sobre raw_records."},
+                    "sentimiento": {"type": "string", "enum": ["neutro", "urgente", "frustrado", "positivo"]}
+                },
+                "required": ["sql"]
             }
         }
     }
@@ -183,7 +199,8 @@ _TOOL_KEYS = {
     "aggregate": ("measure", "group_by", "filters", "top_n"),
     "count": ("filters",),
     "lookup": ("text_query", "filters", "limit"),
-    "list_values": ("dimension",),
+    "list_values": ("dimension", "filters"),
+    "consulta_sql": ("sql",),
 }
 
 
@@ -210,6 +227,9 @@ def _execute_tool(func_name: str, args: dict, schema: dict) -> dict:
     elif func_name == "list_values":
         res = tools.list_values(**kwargs)
         texto = render.render_list_values(res, kwargs.get("dimension"))
+    elif func_name == "consulta_sql":
+        res = tools.run_sql(kwargs.get("sql", ""))
+        texto = render.render_sql(res)
     else:
         texto = "No pude procesar la consulta."
     return render._pieza(texto)
@@ -274,6 +294,7 @@ def _complete_pending(state, user_text: str, schema: dict) -> str | None:
     sentimiento = pend.get("sentimiento", "neutro")
     final = render.aplicar_tono(ans, sentimiento)
     state.last_response = final
+    state.last_sentimiento = sentimiento
     state.add_message("user", user_text)
     state.add_message("assistant", final)
     return final
@@ -338,7 +359,6 @@ def process_turn(session_id: str, user_text: str) -> str:
 
     respuestas: list[str] = []
     sentimiento = "neutro"
-    necesita_interpretacion = False
 
     for tc in msg.tool_calls[:MAX_TOOL_CALLS]:
         func_name = tc.function.name
@@ -360,7 +380,7 @@ def process_turn(session_id: str, user_text: str) -> str:
 
         args["filters"] = resolved_filters
         sentimiento = args.pop("sentimiento", sentimiento) or sentimiento
-        necesita_interpretacion = necesita_interpretacion or bool(args.pop("necesita_interpretacion", False))
+        args.pop("necesita_interpretacion", None)  # ya no se usa: el redactor corre siempre
 
         try:
             respuestas.append(_execute_tool(func_name, args, schema))
@@ -368,39 +388,52 @@ def process_turn(session_id: str, user_text: str) -> str:
         except Exception as e:
             return f"Hubo un problema ejecutando la consulta: {e}"
 
-    final_ans = render.componer(respuestas)
+    datos = render.componer(respuestas)
 
-    # Segunda pasada, SOLO si el usuario pidió explicación/interpretación
-    # además del dato (ARQUITECTURA.md §5.4). Camino rápido (sin esto) no
-    # cambia: cero salto extra cuando la pregunta es solo numérica.
-    if necesita_interpretacion:
-        final_ans = _interpretar(client, deployment, user_text, final_ans)
+    # Segunda pasada SIEMPRE: el LLM redacta la respuesta final hablada a
+    # partir de los datos deterministas que devolvieron las tools. Las cifras
+    # y nombres salen EXCLUSIVAMENTE de `datos` (regla 1), nunca del modelo.
+    final_ans = _redactar(client, deployment, user_text, datos)
 
     final_ans = render.aplicar_tono(final_ans, sentimiento)
     state.last_response = final_ans
+    state.last_sentimiento = sentimiento
     state.add_message("user", user_text)
     state.add_message("assistant", final_ans)
     return final_ans
 
 
-def _interpretar(client, deployment: str, user_text: str, datos: str) -> str:
-    """Segundo salto al LLM: SOLO para explicar/interpretar datos ya
-    obtenidos, nunca para calcular números nuevos (regla 1, CLAUDE.md)."""
+_REDACTOR_SYS = (
+    "Eres una asistente de voz formal y empática que responde por teléfono "
+    "sobre capacidad instalada de IPS en Colombia. Recibes la PREGUNTA del "
+    "usuario y los DATOS que el sistema ya consultó en la base. Redacta UNA "
+    "respuesta hablada, natural y clara, que de verdad conteste la pregunta.\n"
+    "Reglas estrictas:\n"
+    "- Usa EXCLUSIVAMENTE los números, nombres, lugares y campos que aparecen "
+    "en DATOS. Nunca inventes ni calcules cifras nuevas.\n"
+    "- Si DATOS dice que no hay resultado o es vacío, dilo con naturalidad; no "
+    "te inventes un dato.\n"
+    "- Enuncia los filtros/lugar a los que corresponde la cifra, para que no "
+    "quede un número huérfano (ej. 'en el Chocó', 'camas').\n"
+    "- Breve: 1 o 2 frases, apto para escuchar por teléfono. Sin listas largas "
+    "ni markdown. Español colombiano neutro.\n"
+    "- Responde SIEMPRE algo; nunca devuelvas vacío."
+)
+
+
+def _redactar(client, deployment: str, user_text: str, datos: str) -> str:
+    """Segundo salto al LLM: redacta la respuesta final hablada a partir de los
+    datos deterministas de las tools. Cifras y nombres solo salen de `datos`
+    (regla 1). Si falla, cae al texto determinista (regla 7: nunca silencio)."""
     try:
         resp = client.chat.completions.create(
             model=deployment,
             messages=[
-                {"role": "system", "content": (
-                    "Explica o interpreta el dato para el usuario en 1 o 2 frases "
-                    "adicionales. Usa EXCLUSIVAMENTE los números y nombres que ya "
-                    "aparecen en 'Dato obtenido'. No inventes ni calcules cifras "
-                    "nuevas, no repitas el dato tal cual, solo agrega el contexto "
-                    "o significado que el usuario pidió."
-                )},
-                {"role": "user", "content": f"Pregunta: {user_text}\nDato obtenido: {datos}"},
+                {"role": "system", "content": _REDACTOR_SYS},
+                {"role": "user", "content": f"PREGUNTA: {user_text}\nDATOS: {datos}"},
             ],
         )
-        extra = (resp.choices[0].message.content or "").strip()
+        final = (resp.choices[0].message.content or "").strip()
     except Exception:
-        return datos  # regla 7: nunca silencio; si falla, se queda con el dato simple
-    return f"{datos} {extra}".strip() if extra else datos
+        return datos
+    return final or datos
