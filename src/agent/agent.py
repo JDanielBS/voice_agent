@@ -157,6 +157,8 @@ def process_turn(session_id: str, user_text: str) -> str:
             tool_choice="auto"
         )
     except Exception as e:
+        import sys
+        print(f"Azure OpenAI ERROR: {e}", file=sys.stderr)
         return "Hubo un error de conexión con el motor de inteligencia artificial."
         
     msg = response.choices[0].message
