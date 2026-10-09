@@ -210,7 +210,8 @@ function downsample(f32, inRate){
 }
 
 async function start(){
-  ws = new WebSocket(`ws://${location.host}/demo`);
+  const protocol = location.protocol === "https:" ? "wss:" : "ws:";
+  ws = new WebSocket(`${protocol}//${location.host}/demo`);
   ws.binaryType = "arraybuffer";
   ws.onmessage = e => {
     if (typeof e.data === "string"){

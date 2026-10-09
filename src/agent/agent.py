@@ -21,6 +21,24 @@ from src.query import tools, render, resolve
 
 MAX_TOOL_CALLS = 5  # regla 5: por voz no se pueden escuchar más
 
+# Selector de desarrollador (QUERY_MODE): "tools" usa las 4 tools tipadas y el
+# código construye el SQL (regla 2); "gpt" expone solo consulta_sql para que el
+# LLM redacte el SELECT de todo (rompe la regla 2 a propósito, solo para
+# comparar respuestas). Default "tools": no cambia el comportamiento.
+_TOOLS_TIPADAS = ("aggregate", "count", "lookup", "list_values")
+
+
+def query_mode() -> str:
+    from dotenv import load_dotenv
+    load_dotenv()
+    return (os.environ.get("QUERY_MODE") or "tools").strip().lower()
+
+
+def tools_para_modo(mode: str) -> list[dict]:
+    if mode == "gpt":
+        return [t for t in TOOLS_DEF if t["function"]["name"] == "consulta_sql"]
+    return [t for t in TOOLS_DEF if t["function"]["name"] in _TOOLS_TIPADAS]
+
 TOOLS_DEF = [
     {
         "type": "function",
@@ -307,6 +325,7 @@ def process_turn(session_id: str, user_text: str) -> str:
     client = _get_client()
     state = state_manager.get(session_id)
     schema = tools.load_schema()
+    mode = query_mode()
 
     # Fase 6: Interceptar turnos de corrección
     intercept = turn.interceptar(user_text, state)
@@ -321,7 +340,7 @@ def process_turn(session_id: str, user_text: str) -> str:
 
     state.tick()
 
-    system_prompt = generate_prompt()
+    system_prompt = generate_prompt(mode=mode)
 
     context_msgs = [{"role": "system", "content": system_prompt}]
     slots_summary = state.resumen_slots()
@@ -340,7 +359,7 @@ def process_turn(session_id: str, user_text: str) -> str:
         response = client.chat.completions.create(
             model=deployment,
             messages=context_msgs,
-            tools=TOOLS_DEF,
+            tools=tools_para_modo(mode),
             tool_choice="auto"
         )
     except Exception as e:

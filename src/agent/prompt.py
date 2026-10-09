@@ -2,6 +2,17 @@
 
 Inyecta las dimensiones, medidas y valores permitidos para que el LLM
 pueda llamar a las tools sin inventar argumentos.
+
+Hay dos modos de operación, seleccionables por el desarrollador con la
+variable de entorno QUERY_MODE (ver agent.py):
+
+  - "tools" (default): el LLM elige entre las 4 tools tipadas; el código
+    construye el SQL (ARQUITECTURA.md §5.2, regla 2 de CLAUDE.md).
+  - "gpt": el LLM redacta el SELECT de cada consulta (escape hatch que
+    rompe la regla 2 a propósito, solo para comparar respuestas).
+
+El prompt cambia la última regla y los ejemplos según el modo; el resto
+(persona, reglas 1-12, catálogo de columnas) es común.
 """
 from __future__ import annotations
 
@@ -32,10 +43,15 @@ Reglas:
 10. PROHIBIDO responder con la palabra 'camas' (u otra categoría) si la tool no la devolvió. Para explicar una cifra anterior usa solo la medida y los filtros que aparecen en el contexto de slots.
 11. En CADA llamada a tool incluye 'sentimiento' según el tono del usuario: 'urgente' (afán, prisa, "rápido"), 'frustrado' (queja, "ya te pregunté", "no entiendo"), 'positivo' (saludo amable, entusiasmo) o 'neutro'. Es para adaptar el tono de la respuesta.
 12. En CADA llamada a tool incluye 'necesita_interpretacion' en true SOLO si, además del dato, el usuario pidió su significado, interpretación o contexto (ej. "¿qué significa esa cifra?", "interpreta ese resultado", "explícame qué implica"). Si solo pide el dato (el caso normal), déjalo en false. No afecta qué tool llamas, solo si el sistema agrega una explicación después.
-13. PREFIERE SIEMPRE aggregate/count/lookup/list_values. Solo si NINGUNA puede responder (cruces o agregaciones que no encajan en esas 4), usa consulta_sql con un único SELECT de lectura sobre raw_records (columna 'data' jsonb): accede campos con data->>'columna', suma con SUM((data->>'num_cantidad_capacidad_instalada')::double precision), y para texto usa ILIKE '%valor%' porque los valores están en MAYÚSCULAS. Nunca escribas en la base.
+{modo_regla}
 
 Columnas disponibles en la base de datos:
 {schema_info}
+"""
+
+# Modo "tools": el LLM elige entre las 4 tools tipadas y el código arma el SQL.
+_TOOLS_BLOCK = """
+13. Usa SIEMPRE las tools tipadas aggregate/count/lookup/list_values. NO escribas SQL: el sistema construye la consulta a partir de tus argumentos. Si ninguna tool puede responder, dilo en texto en vez de inventar.
 
 Ejemplos de interacción (solo llama a las tools, no expliques):
 Usuario: "¿Cuántas camas hay en el Chocó?"
@@ -77,16 +93,37 @@ Llamada: aggregate(measure="num_cantidad_capacidad_instalada", group_by=["nombre
 
 Usuario: "¿cuántas camas hay en Chocó y qué significa esa cifra?"
 Llamada: aggregate(measure="num_cantidad_capacidad_instalada", filters={{"departamento": "Chocó", "nom_grupo_capacidad": "CAMAS"}}, necesita_interpretacion=true)
-
-Usuario (algo que las 4 tools no cubren, ej. promedio de camas por sede en Nariño):
-Llamada: consulta_sql(sql="SELECT AVG((data->>'num_cantidad_capacidad_instalada')::double precision) FROM raw_records WHERE data->>'departamento' ILIKE '%NARINO%' AND data->>'nom_grupo_capacidad' ILIKE '%CAMAS%'")
 """
 
-def generate_prompt(schema_path: Path | None = None) -> str:
+# Modo "gpt": el LLM genera el SELECT de TODAS las consultas vía consulta_sql.
+_GPT_BLOCK = """
+13. REGLA DE ORO: no tienes tools tipadas. TODA consulta se resuelve generando UN único SELECT de lectura y llamando a consulta_sql(sql=...). NUNCA escribas en la base (nada de INSERT/UPDATE/DELETE/DROP); un solo SELECT, sin ';'.
+    - Los datos viven en la tabla raw_records, columna 'data' (jsonb). Accede a un campo con data->>'nombre_columna'.
+    - Los valores de texto están guardados en MAYÚSCULAS: compara con ILIKE '%valor%' (sin tildes) o = 'VALOR'.
+    - La medida numérica 'num_cantidad_capacidad_instalada' se convierte con (data->>'num_cantidad_capacidad_instalada')::double precision.
+    - Usa SUM(), COUNT(DISTINCT ...), AVG(), GROUP BY, ORDER BY y LIMIT. Por voz acota la salida a 5 filas.
+    - Para desambiguar una entidad que existe como municipio y como departamento, filtra por la columna correcta y evita adivinar; si hace falta, pide aclaración en texto.
+
+Ejemplos de SQL (llama a consulta_sql con el SELECT):
+Usuario: "¿Cuántas camas hay en el Chocó?"
+Llamada: consulta_sql(sql="SELECT SUM((data->>'num_cantidad_capacidad_instalada')::double precision) AS total FROM raw_records WHERE data->>'departamento' ILIKE '%CHOCO%' AND data->>'nom_grupo_capacidad' ILIKE '%CAMAS%'")
+
+Usuario: "¿Cuántas IPS públicas hay en total?"
+Llamada: consulta_sql(sql="SELECT COUNT(DISTINCT data->>'codigo_sede') AS total FROM raw_records WHERE data->>'naturaleza' ILIKE '%PUBLICA%'")
+
+Usuario: "¿cuántas camas por municipio en Nariño?" (top 5)
+Llamada: consulta_sql(sql="SELECT data->>'municipio' AS municipio, SUM((data->>'num_cantidad_capacidad_instalada')::double precision) AS total FROM raw_records WHERE data->>'departamento' ILIKE '%NARINO%' AND data->>'nom_grupo_capacidad' ILIKE '%CAMAS%' GROUP BY municipio ORDER BY total DESC NULLS LAST LIMIT 5")
+
+Usuario: "Busca el hospital san rafael de leticia"
+Llamada: consulta_sql(sql="SELECT data FROM raw_records WHERE data->>'nombre_prestador' ILIKE '%SAN RAFAEL%' AND data->>'municipio' ILIKE '%LETICIA%' LIMIT 5")
+"""
+
+
+def generate_prompt(schema_path: Path | None = None, mode: str = "tools") -> str:
     path = schema_path or DATA_DIR / "schema.json"
     with open(path, "r", encoding="utf-8") as f:
         schema = json.load(f)
-        
+
     lines = []
     identificadores = []
     for col in schema["columns"]:
@@ -116,15 +153,18 @@ def generate_prompt(schema_path: Path | None = None) -> str:
             "(son miles de nombres).")
 
     schema_info = "\n".join(lines)
-    prompt = BASE_PROMPT.format(schema_info=schema_info)
-    
+    bloque = _GPT_BLOCK if (mode or "").strip().lower() == "gpt" else _TOOLS_BLOCK
+    prompt = BASE_PROMPT.format(modo_regla=bloque, schema_info=schema_info)
+
     # Escribir a prompt.txt (como indica la arquitectura)
     out_path = DATA_DIR / "prompt.txt"
     out_path.write_text(prompt, encoding="utf-8")
-    
+
     return prompt
 
 if __name__ == "__main__":
-    p = generate_prompt()
-    print("Prompt generado:")
+    import sys
+    modo = sys.argv[1] if len(sys.argv) > 1 else "tools"
+    p = generate_prompt(mode=modo)
+    print(f"Prompt generado (modo={modo}):")
     print(p[:500] + "...\n(Ver data/prompt.txt para el prompt completo)")

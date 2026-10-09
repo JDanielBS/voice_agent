@@ -259,6 +259,11 @@ El tope de 5 resultados es duro: por voz, más de cinco elementos no se pueden e
 
 Si de todos modos se quiere SQL generado, el mínimo defensivo es: conexión read-only, `PRAGMA query_only = ON`, timeout de 500 ms, lista blanca de tablas y validación del AST con `sqlglot` antes de ejecutar. Son cuatro capas para obtener una flexibilidad que las tools ya cubren.
 
+**Selector de desarrollo.** Para comparar respuestas existe `QUERY_MODE` (default `tools`, sin cambio de comportamiento):
+
+- `tools`: el LLM elige entre las 4 tools tipadas; el código construye el SELECT (lo descrito arriba, regla 2 vigente).
+- `gpt`: se expone solo `consulta_sql` y el LLM redacta el SELECT de todas las consultas. Rompe la regla 2 a propósito; es un modo de experimentación que conserva las capas defensivas de `run_sql` (un solo SELECT, sin verbos de escritura) y el rol read-only, pero **no debe usarse como camino de producción**. Ver `src/agent/agent.py`.
+
 ### 5.3 Resolución de entidades habladas
 
 El STT entrega texto sin tildes y con errores fonéticos. El resolver convierte lo transcrito en el valor canónico de la base:
