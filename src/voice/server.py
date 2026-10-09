@@ -7,6 +7,8 @@ y empuja a la UI la transcripción diarizada, el sentimiento y el audio de la re
 from __future__ import annotations
 
 import asyncio
+import os
+import traceback
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -34,10 +36,45 @@ app.add_middleware(
 )
 
 _PANEL = Path(__file__).parent / "static" / "panel.html"
+_SCHEMA = Path(__file__).resolve().parents[2] / "data" / "schema.json"
+
+# Sin estas el turno revienta en el primer `process_turn` y la llamada se queda
+# muda. Se comprueban al arrancar para que el fallo salga en el log del deploy
+# y no a mitad de una llamada.
+_REQUIRED_ENV = (
+    "AZURE_SPEECH_KEY", "AZURE_SPEECH_REGION",
+    "AZURE_OPENAI_API_KEY", "AZURE_OPENAI_ENDPOINT",
+    "AZURE_OPENAI_DEPLOYMENT", "AZURE_OPENAI_API_VERSION",
+    "DATABASE_URL",
+)
+
+def _readiness() -> dict:
+    faltan = [k for k in _REQUIRED_ENV if not os.environ.get(k)]
+    if not _SCHEMA.exists():
+        faltan.append("data/schema.json (regenerar con: python -m src.schema.infer)")
+    return {"ok": not faltan, "faltan": faltan}
+
+_ready = _readiness()
+if not _ready["ok"]:
+    print("[BOOT] FALTA CONFIGURACIÓN — el agente no podrá responder:")
+    for item in _ready["faltan"]:
+        print(f"[BOOT]   - {item}")
+else:
+    print("[BOOT] Configuración completa.")
 
 @app.get("/")
 async def panel():
     return FileResponse(_PANEL)
+
+@app.get("/health")
+async def health():
+    """Diagnóstico del deploy sin tener que hacer una llamada."""
+    return _readiness()
+
+# ponytail: regla 9 pide WAV pregrabado; aquí va por TTS porque data/audio/ no
+# se genera todavía. Si cae el TTS, al menos el texto llega a la transcripción.
+_FALLBACK = ("Disculpa, tuve un problema técnico al consultar la base de datos. "
+             "¿Puedes repetir tu pregunta?")
 
 async def _play_tts(ws: WebSocket, text: str) -> None:
     """Sintetiza y envía el audio (mulaw 8kHz) como frames binarios al navegador."""
@@ -99,8 +136,15 @@ async def demo_endpoint(ws: WebSocket):
             except WebSocketDisconnect:
                 break
 
-            reply = await asyncio.to_thread(process_turn, session_id, text)
-            sentimiento = state_manager.get(session_id).last_sentimiento
+            # Regla 7: ningún fallo del turno puede terminar en silencio ni
+            # tumbar la llamada. Se responde con la frase fija y se sigue.
+            try:
+                reply = await asyncio.to_thread(process_turn, session_id, text)
+                sentimiento = state_manager.get(session_id).last_sentimiento
+            except Exception:
+                print(f"[WS] Error procesando el turno de {session_id}:")
+                traceback.print_exc()
+                reply, sentimiento = _FALLBACK, "neutro"
             
             print(f"[WS] Agente ({session_id}): {reply} [{sentimiento}]")
             
@@ -110,8 +154,9 @@ async def demo_endpoint(ws: WebSocket):
             except WebSocketDisconnect:
                 break
 
-    except Exception as e:
-        print(f"[WS] Error en {session_id}: {e}")
+    except Exception:
+        print(f"[WS] Error fatal en {session_id}:")
+        traceback.print_exc()
     finally:
         print(f"[WS] Limpiando sesión {session_id}")
         stt.cancel()

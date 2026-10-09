@@ -2,14 +2,31 @@ services:
   - type: web
     name: voice-agent-ips
     env: python
-    buildCommand: "pip install -r requirements.txt"
+    # data/ es generado (CLAUDE.md): schema.json y vocab.json se perfilan desde
+    # la base en el build, no se versionan. Requiere DATABASE_URL en el deploy.
+    buildCommand: "pip install -r requirements.txt && python -m src.schema.infer && python -m src.schema.vocab"
     startCommand: "uvicorn src.voice.server:app --host 0.0.0.0 --port $PORT"
     envVars:
+      # Azure Speech (STT + TTS)
       - key: AZURE_SPEECH_KEY
         sync: false
       - key: AZURE_SPEECH_REGION
         sync: false
-      - key: OPENAI_API_KEY
+      # Azure OpenAI — sin estas cuatro el turno revienta y la llamada se queda muda
+      - key: AZURE_OPENAI_API_KEY
         sync: false
+      - key: AZURE_OPENAI_ENDPOINT
+        sync: false
+      - key: AZURE_OPENAI_DEPLOYMENT
+        sync: false
+      - key: AZURE_OPENAI_API_VERSION
+        value: 2025-01-01-preview
+      # Postgres (las 4 tools) + perfilado del esquema en el build
+      - key: DATABASE_URL
+        sync: false
+      - key: DATOS_GOV_DATASET_ID
+        value: s2ru-bqt6
+      - key: QUERY_MODE
+        value: tools
       - key: PYTHON_VERSION
         value: 3.11.0
