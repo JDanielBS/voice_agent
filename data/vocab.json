@@ -1,0 +1,3514 @@
+{
+  "total_entries": 430,
+  "entries": [
+    {
+      "canonical": "TOCA",
+      "normalized": "toca",
+      "aliases": [
+        "toca"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "SOTAQUIRÁ",
+      "normalized": "sotaquira",
+      "aliases": [
+        "sotaquira"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "SAN PABLO DE BORBUR",
+      "normalized": "san pablo de borbur",
+      "aliases": [
+        "san pablo de borbur",
+        "sn pablo de borbur"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "GUATAPE",
+      "normalized": "guatape",
+      "aliases": [
+        "guatape"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "FREDONIA",
+      "normalized": "fredonia",
+      "aliases": [
+        "fredonia"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "MIRITI - PARANÁ",
+      "normalized": "miriti - parana",
+      "aliases": [
+        "miriti - parana"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "ARENAL",
+      "normalized": "arenal",
+      "aliases": [
+        "arenal"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "PUERTO NARIÑO",
+      "normalized": "puerto narino",
+      "aliases": [
+        "puerto narino"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "SALGAR",
+      "normalized": "salgar",
+      "aliases": [
+        "salgar"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "NEIRA",
+      "normalized": "neira",
+      "aliases": [
+        "neira"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "PENSILVANIA",
+      "normalized": "pensilvania",
+      "aliases": [
+        "pensilvania"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "RETIRO",
+      "normalized": "retiro",
+      "aliases": [
+        "retiro"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "BRICEÑO",
+      "normalized": "briceno",
+      "aliases": [
+        "briceno"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "NARIÑO",
+      "normalized": "narino",
+      "aliases": [
+        "narino"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "ITUANGO",
+      "normalized": "ituango",
+      "aliases": [
+        "ituango"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "CUBARÁ",
+      "normalized": "cubara",
+      "aliases": [
+        "cubara"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "CONCEPCIÓN",
+      "normalized": "concepcion",
+      "aliases": [
+        "concepcion"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "CUCAITA",
+      "normalized": "cucaita",
+      "aliases": [
+        "cucaita"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "NOBSA",
+      "normalized": "nobsa",
+      "aliases": [
+        "nobsa"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "MORALES",
+      "normalized": "morales",
+      "aliases": [
+        "morales"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "USIACURÍ",
+      "normalized": "usiacuri",
+      "aliases": [
+        "usiacuri"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "ACHÍ",
+      "normalized": "achi",
+      "aliases": [
+        "achi"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "LA ESTRELLA",
+      "normalized": "la estrella",
+      "aliases": [
+        "la estrella"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "TIBANÁ",
+      "normalized": "tibana",
+      "aliases": [
+        "tibana"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "MONTEBELLO",
+      "normalized": "montebello",
+      "aliases": [
+        "montebello"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "JERICÓ",
+      "normalized": "jerico",
+      "aliases": [
+        "jerico"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "ANGELÓPOLIS",
+      "normalized": "angelopolis",
+      "aliases": [
+        "angelopolis"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "TÓPAGA",
+      "normalized": "topaga",
+      "aliases": [
+        "topaga"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "SAN JACINTO DEL CAUCA",
+      "normalized": "san jacinto del cauca",
+      "aliases": [
+        "san jacinto del cauca",
+        "sn jacinto del cauca"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "GIRARDOTA",
+      "normalized": "girardota",
+      "aliases": [
+        "girardota"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "BOYACÁ",
+      "normalized": "boyaca",
+      "aliases": [
+        "boyaca"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "EL CARMEN DE VIBORAL",
+      "normalized": "el carmen de viboral",
+      "aliases": [
+        "el carmen de viboral"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "CARACOLÍ",
+      "normalized": "caracoli",
+      "aliases": [
+        "caracoli"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "GAMEZA",
+      "normalized": "gameza",
+      "aliases": [
+        "gameza"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "LA CHORRERA",
+      "normalized": "la chorrera",
+      "aliases": [
+        "la chorrera"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "LA DORADA",
+      "normalized": "la dorada",
+      "aliases": [
+        "la dorada"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "BETANIA",
+      "normalized": "betania",
+      "aliases": [
+        "betania"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "MANZANARES",
+      "normalized": "manzanares",
+      "aliases": [
+        "manzanares"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "OTANCHE",
+      "normalized": "otanche",
+      "aliases": [
+        "otanche"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "CICUCO",
+      "normalized": "cicuco",
+      "aliases": [
+        "cicuco"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "ANSERMA",
+      "normalized": "anserma",
+      "aliases": [
+        "anserma"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "NECOCLÍ",
+      "normalized": "necocli",
+      "aliases": [
+        "necocli"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "DABEIBA",
+      "normalized": "dabeiba",
+      "aliases": [
+        "dabeiba"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "SAN LUIS",
+      "normalized": "san luis",
+      "aliases": [
+        "san luis",
+        "sn luis"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "MOTAVITA",
+      "normalized": "motavita",
+      "aliases": [
+        "motavita"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "BUENAVENTURA",
+      "normalized": "buenaventura",
+      "aliases": [
+        "buenaventura"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "SOCOTÁ",
+      "normalized": "socota",
+      "aliases": [
+        "socota"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "PUERTO NARE",
+      "normalized": "puerto nare",
+      "aliases": [
+        "puerto nare"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "SANTANA",
+      "normalized": "santana",
+      "aliases": [
+        "santana"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "CÓMBITA",
+      "normalized": "combita",
+      "aliases": [
+        "combita"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "PACHAVITA",
+      "normalized": "pachavita",
+      "aliases": [
+        "pachavita"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "JARDÍN",
+      "normalized": "jardin",
+      "aliases": [
+        "jardin"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "URAMITA",
+      "normalized": "uramita",
+      "aliases": [
+        "uramita"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "BUENAVISTA",
+      "normalized": "buenavista",
+      "aliases": [
+        "buenavista"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "SANTA LUCÍA",
+      "normalized": "santa lucia",
+      "aliases": [
+        "santa lucia",
+        "sta lucia"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "BARBOSA",
+      "normalized": "barbosa",
+      "aliases": [
+        "barbosa"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "TUNJA",
+      "normalized": "tunja",
+      "aliases": [
+        "tunja"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "PUEBLORRICO",
+      "normalized": "pueblorrico",
+      "aliases": [
+        "pueblorrico"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "TUBARÁ",
+      "normalized": "tubara",
+      "aliases": [
+        "tubara"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "PAUNA",
+      "normalized": "pauna",
+      "aliases": [
+        "pauna"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "MARIPÍ",
+      "normalized": "maripi",
+      "aliases": [
+        "maripi"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "APARTADÓ",
+      "normalized": "apartado",
+      "aliases": [
+        "apartado"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "PÁCORA",
+      "normalized": "pacora",
+      "aliases": [
+        "pacora"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "REMEDIOS",
+      "normalized": "remedios",
+      "aliases": [
+        "remedios"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "LETICIA",
+      "normalized": "leticia",
+      "aliases": [
+        "leticia"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "FRONTINO",
+      "normalized": "frontino",
+      "aliases": [
+        "frontino"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "SANTA ROSA DEL SUR",
+      "normalized": "santa rosa del sur",
+      "aliases": [
+        "santa rosa del sur",
+        "sta rosa del sur"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "IZA",
+      "normalized": "iza",
+      "aliases": [
+        "iza"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "VIRACACHÁ",
+      "normalized": "viracacha",
+      "aliases": [
+        "viracacha"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "SAN JOSÉ DE LA MONTAÑA",
+      "normalized": "san jose de la montana",
+      "aliases": [
+        "san jose de la montana",
+        "sn jose de la montana"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "ABEJORRAL",
+      "normalized": "abejorral",
+      "aliases": [
+        "abejorral"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "HATILLO DE LOBA",
+      "normalized": "hatillo de loba",
+      "aliases": [
+        "atillo de loba",
+        "hatillo de loba"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "CHINCHINÁ",
+      "normalized": "chinchina",
+      "aliases": [
+        "chinchina"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "OICATÁ",
+      "normalized": "oicata",
+      "aliases": [
+        "oicata"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "DON MATÍAS",
+      "normalized": "don matias",
+      "aliases": [
+        "don matias"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "EBÉJICO",
+      "normalized": "ebejico",
+      "aliases": [
+        "ebejico"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "CONCORDIA",
+      "normalized": "concordia",
+      "aliases": [
+        "concordia"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "SAN MIGUEL DE SEMA",
+      "normalized": "san miguel de sema",
+      "aliases": [
+        "san miguel de sema",
+        "sn miguel de sema"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "RAMIRIQUÍ",
+      "normalized": "ramiriqui",
+      "aliases": [
+        "ramiriqui"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "TAME",
+      "normalized": "tame",
+      "aliases": [
+        "tame"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "QUÍPAMA",
+      "normalized": "quipama",
+      "aliases": [
+        "quipama"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "ANZA",
+      "normalized": "anza",
+      "aliases": [
+        "anza"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "SABANALARGA",
+      "normalized": "sabanalarga",
+      "aliases": [
+        "sabanalarga"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "MARQUETALIA",
+      "normalized": "marquetalia",
+      "aliases": [
+        "marquetalia"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "BUSBANZÁ",
+      "normalized": "busbanza",
+      "aliases": [
+        "busbanza"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "CAROLINA",
+      "normalized": "carolina",
+      "aliases": [
+        "carolina"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "MURINDÓ",
+      "normalized": "murindo",
+      "aliases": [
+        "murindo"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "PUERTO ALEGRÍA",
+      "normalized": "puerto alegria",
+      "aliases": [
+        "puerto alegria"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "MACEO",
+      "normalized": "maceo",
+      "aliases": [
+        "maceo"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "SAN PEDRO DE URABA",
+      "normalized": "san pedro de uraba",
+      "aliases": [
+        "san pedro de uraba",
+        "sn pedro de uraba"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "SAN FRANCISCO",
+      "normalized": "san francisco",
+      "aliases": [
+        "san francisco",
+        "sn francisco"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "BARRANQUILLA",
+      "normalized": "barranquilla",
+      "aliases": [
+        "barranquilla"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "GUACAMAYAS",
+      "normalized": "guacamayas",
+      "aliases": [
+        "guacamayas"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "PÁEZ",
+      "normalized": "paez",
+      "aliases": [
+        "paez"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "GACHANTIVÁ",
+      "normalized": "gachantiva",
+      "aliases": [
+        "gachantiva"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "JENESANO",
+      "normalized": "jenesano",
+      "aliases": [
+        "jenesano"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "PAYA",
+      "normalized": "paya",
+      "aliases": [
+        "paya"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "EL BAGRE",
+      "normalized": "el bagre",
+      "aliases": [
+        "el bagre"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "TARAPACÁ",
+      "normalized": "tarapaca",
+      "aliases": [
+        "tarapaca"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "PUERTO COLOMBIA",
+      "normalized": "puerto colombia",
+      "aliases": [
+        "puerto colombia"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "SÁCHICA",
+      "normalized": "sachica",
+      "aliases": [
+        "sachica"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "TUNUNGUÁ",
+      "normalized": "tunungua",
+      "aliases": [
+        "tunungua"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "CHITARAQUE",
+      "normalized": "chitaraque",
+      "aliases": [
+        "chitaraque"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "TIPACOQUE",
+      "normalized": "tipacoque",
+      "aliases": [
+        "tipacoque"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "SOMONDOCO",
+      "normalized": "somondoco",
+      "aliases": [
+        "somondoco"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "CUÍTIVA",
+      "normalized": "cuitiva",
+      "aliases": [
+        "cuitiva"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "SOGAMOSO",
+      "normalized": "sogamoso",
+      "aliases": [
+        "sogamoso"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "LA PEDRERA",
+      "normalized": "la pedrera",
+      "aliases": [
+        "la pedrera"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "COPER",
+      "normalized": "coper",
+      "aliases": [
+        "coper"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "SAN CARLOS",
+      "normalized": "san carlos",
+      "aliases": [
+        "san carlos",
+        "sn carlos"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "CHITA",
+      "normalized": "chita",
+      "aliases": [
+        "chita"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "BOAVITA",
+      "normalized": "boavita",
+      "aliases": [
+        "boavita"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "TOGÜÍ",
+      "normalized": "togui",
+      "aliases": [
+        "togui"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "ENVIGADO",
+      "normalized": "envigado",
+      "aliases": [
+        "envigado"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "TIQUISIO",
+      "normalized": "tiquisio",
+      "aliases": [
+        "tiquisio"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "AMALFI",
+      "normalized": "amalfi",
+      "aliases": [
+        "amalfi"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "VALDIVIA",
+      "normalized": "valdivia",
+      "aliases": [
+        "valdivia"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "ARGELIA",
+      "normalized": "argelia",
+      "aliases": [
+        "argelia"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "TASCO",
+      "normalized": "tasco",
+      "aliases": [
+        "tasco"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "SATIVANORTE",
+      "normalized": "sativanorte",
+      "aliases": [
+        "sativanorte"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "ENTRERRIOS",
+      "normalized": "entrerrios",
+      "aliases": [
+        "entrerrios"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "CANDELARIA",
+      "normalized": "candelaria",
+      "aliases": [
+        "candelaria"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "LA CEJA",
+      "normalized": "la ceja",
+      "aliases": [
+        "la ceja"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "GUADALUPE",
+      "normalized": "guadalupe",
+      "aliases": [
+        "guadalupe"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "NOROSÍ",
+      "normalized": "norosi",
+      "aliases": [
+        "norosi"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "GIRALDO",
+      "normalized": "giraldo",
+      "aliases": [
+        "giraldo"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "EL CARMEN DE BOLÍVAR",
+      "normalized": "el carmen de bolivar",
+      "aliases": [
+        "el carmen de bolivar"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "SAN PABLO",
+      "normalized": "san pablo",
+      "aliases": [
+        "san pablo",
+        "sn pablo"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "ARCABUCO",
+      "normalized": "arcabuco",
+      "aliases": [
+        "arcabuco"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "REPELÓN",
+      "normalized": "repelon",
+      "aliases": [
+        "repelon"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "RONDÓN",
+      "normalized": "rondon",
+      "aliases": [
+        "rondon"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "TÁMESIS",
+      "normalized": "tamesis",
+      "aliases": [
+        "tamesis"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "LA MERCED",
+      "normalized": "la merced",
+      "aliases": [
+        "la merced"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "PAZ DE RÍO",
+      "normalized": "paz de rio",
+      "aliases": [
+        "paz de rio"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "MANATÍ",
+      "normalized": "manati",
+      "aliases": [
+        "manati"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "SAN FERNANDO",
+      "normalized": "san fernando",
+      "aliases": [
+        "san fernando",
+        "sn fernando"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "SANTA MARÍA",
+      "normalized": "santa maria",
+      "aliases": [
+        "santa maria",
+        "sta maria"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "CHIVOR",
+      "normalized": "chivor",
+      "aliases": [
+        "chivor"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "YARUMAL",
+      "normalized": "yarumal",
+      "aliases": [
+        "yarumal"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "PEQUE",
+      "normalized": "peque",
+      "aliases": [
+        "peque"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "NECHÍ",
+      "normalized": "nechi",
+      "aliases": [
+        "nechi"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "SONSON",
+      "normalized": "sonson",
+      "aliases": [
+        "sonson"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "MARÍA LA BAJA",
+      "normalized": "maria la baja",
+      "aliases": [
+        "maria la baja"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "ARJONA",
+      "normalized": "arjona",
+      "aliases": [
+        "arjona"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "CIUDAD BOLÍVAR",
+      "normalized": "ciudad bolivar",
+      "aliases": [
+        "ciudad bolivar"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "REGIDOR",
+      "normalized": "regidor",
+      "aliases": [
+        "regidor"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "LA UNIÓN",
+      "normalized": "la union",
+      "aliases": [
+        "la union"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "COPACABANA",
+      "normalized": "copacabana",
+      "aliases": [
+        "copacabana"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "EL GUAMO",
+      "normalized": "el guamo",
+      "aliases": [
+        "el guamo"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "SOPETRÁN",
+      "normalized": "sopetran",
+      "aliases": [
+        "sopetran"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "SAN JACINTO",
+      "normalized": "san jacinto",
+      "aliases": [
+        "san jacinto",
+        "sn jacinto"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "SAN ANDRÉS",
+      "normalized": "san andres",
+      "aliases": [
+        "san andres",
+        "sn andres"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "FILADELFIA",
+      "normalized": "filadelfia",
+      "aliases": [
+        "filadelfia"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "AGUADAS",
+      "normalized": "aguadas",
+      "aliases": [
+        "aguadas"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "ANORÍ",
+      "normalized": "anori",
+      "aliases": [
+        "anori"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "DUITAMA",
+      "normalized": "duitama",
+      "aliases": [
+        "duitama"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "ANGOSTURA",
+      "normalized": "angostura",
+      "aliases": [
+        "angostura"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "SUTAMARCHÁN",
+      "normalized": "sutamarchan",
+      "aliases": [
+        "sutamarchan"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "GUAYATÁ",
+      "normalized": "guayata",
+      "aliases": [
+        "guayata"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "VALPARAÍSO",
+      "normalized": "valparaiso",
+      "aliases": [
+        "valparaiso"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "CHINAVITA",
+      "normalized": "chinavita",
+      "aliases": [
+        "chinavita"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "PUERTO RONDÓN",
+      "normalized": "puerto rondon",
+      "aliases": [
+        "puerto rondon"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "VEGACHÍ",
+      "normalized": "vegachi",
+      "aliases": [
+        "vegachi"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "MONTECRISTO",
+      "normalized": "montecristo",
+      "aliases": [
+        "montecristo"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "ZARAGOZA",
+      "normalized": "zaragoza",
+      "aliases": [
+        "zaragoza"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "GÜICÁN",
+      "normalized": "guican",
+      "aliases": [
+        "guican"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "MARGARITA",
+      "normalized": "margarita",
+      "aliases": [
+        "margarita"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "PIOJÓ",
+      "normalized": "piojo",
+      "aliases": [
+        "piojo"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "SANTAFÉ DE ANTIOQUIA",
+      "normalized": "santafe de antioquia",
+      "aliases": [
+        "santafe de antioquia"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "MONIQUIRÁ",
+      "normalized": "moniquira",
+      "aliases": [
+        "moniquira"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "PUERTO SANTANDER",
+      "normalized": "puerto santander",
+      "aliases": [
+        "puerto santander"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "FIRAVITOBA",
+      "normalized": "firavitoba",
+      "aliases": [
+        "firavitoba"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "ARBOLETES",
+      "normalized": "arboletes",
+      "aliases": [
+        "arboletes"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "CHISCAS",
+      "normalized": "chiscas",
+      "aliases": [
+        "chiscas"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "ITAGUI",
+      "normalized": "itagui",
+      "aliases": [
+        "itagui"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "LA VICTORIA",
+      "normalized": "la victoria",
+      "aliases": [
+        "la victoria"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "MAHATES",
+      "normalized": "mahates",
+      "aliases": [
+        "mahates"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "MEDELLÍN",
+      "normalized": "medellin",
+      "aliases": [
+        "medellin"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "CLEMENCIA",
+      "normalized": "clemencia",
+      "aliases": [
+        "clemencia"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "ARMENIA",
+      "normalized": "armenia",
+      "aliases": [
+        "armenia"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "SUSACÓN",
+      "normalized": "susacon",
+      "aliases": [
+        "susacon"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "TURMEQUÉ",
+      "normalized": "turmeque",
+      "aliases": [
+        "turmeque"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "CAMPOHERMOSO",
+      "normalized": "campohermoso",
+      "aliases": [
+        "campohermoso"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "TIBASOSA",
+      "normalized": "tibasosa",
+      "aliases": [
+        "tibasosa"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "PAJARITO",
+      "normalized": "pajarito",
+      "aliases": [
+        "pajarito"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "TALAIGUA NUEVO",
+      "normalized": "talaigua nuevo",
+      "aliases": [
+        "talaigua nuevo"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "YOLOMBÓ",
+      "normalized": "yolombo",
+      "aliases": [
+        "yolombo"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "TURBANA",
+      "normalized": "turbana",
+      "aliases": [
+        "turbana"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "PUERTO ARICA",
+      "normalized": "puerto arica",
+      "aliases": [
+        "puerto arica"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "TOLEDO",
+      "normalized": "toledo",
+      "aliases": [
+        "toledo"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "SAN JUAN DE URABÁ",
+      "normalized": "san juan de uraba",
+      "aliases": [
+        "san juan de uraba",
+        "sn juan de uraba"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "LABRANZAGRANDE",
+      "normalized": "labranzagrande",
+      "aliases": [
+        "labranzagrande"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "SANTA ROSA DE OSOS",
+      "normalized": "santa rosa de osos",
+      "aliases": [
+        "santa rosa de osos",
+        "sta rosa de osos"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "SORACÁ",
+      "normalized": "soraca",
+      "aliases": [
+        "soraca"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "MALAMBO",
+      "normalized": "malambo",
+      "aliases": [
+        "malambo"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "MIRAFLORES",
+      "normalized": "miraflores",
+      "aliases": [
+        "miraflores"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "BELMIRA",
+      "normalized": "belmira",
+      "aliases": [
+        "belmira"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "SAN MARTÍN DE LOBA",
+      "normalized": "san martin de loba",
+      "aliases": [
+        "san martin de loba",
+        "sn martin de loba"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "CHIGORODÓ",
+      "normalized": "chigorodo",
+      "aliases": [
+        "chigorodo"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "VIGÍA DEL FUERTE",
+      "normalized": "vigia del fuerte",
+      "aliases": [
+        "vigia del fuerte"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "MANIZALES",
+      "normalized": "manizales",
+      "aliases": [
+        "manizales"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "CAICEDO",
+      "normalized": "caicedo",
+      "aliases": [
+        "caicedo"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "CIÉNEGA",
+      "normalized": "cienega",
+      "aliases": [
+        "cienega"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "SAN JUAN NEPOMUCENO",
+      "normalized": "san juan nepomuceno",
+      "aliases": [
+        "san juan nepomuceno",
+        "sn juan nepomuceno"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "ABRIAQUÍ",
+      "normalized": "abriaqui",
+      "aliases": [
+        "abriaqui"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "LA PINTADA",
+      "normalized": "la pintada",
+      "aliases": [
+        "la pintada"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "CERINZA",
+      "normalized": "cerinza",
+      "aliases": [
+        "cerinza"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "ZAMBRANO",
+      "normalized": "zambrano",
+      "aliases": [
+        "zambrano"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "ARANZAZU",
+      "normalized": "aranzazu",
+      "aliases": [
+        "aranzazu"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "MARULANDA",
+      "normalized": "marulanda",
+      "aliases": [
+        "marulanda"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "CAMPAMENTO",
+      "normalized": "campamento",
+      "aliases": [
+        "campamento"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "BERBEO",
+      "normalized": "berbeo",
+      "aliases": [
+        "berbeo"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "ALTOS DEL ROSARIO",
+      "normalized": "altos del rosario",
+      "aliases": [
+        "altos del rosario"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "PUERTO TRIUNFO",
+      "normalized": "puerto triunfo",
+      "aliases": [
+        "puerto triunfo"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "PALESTINA",
+      "normalized": "palestina",
+      "aliases": [
+        "palestina"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "VENTAQUEMADA",
+      "normalized": "ventaquemada",
+      "aliases": [
+        "ventaquemada"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "PUERTO BOYACÁ",
+      "normalized": "puerto boyaca",
+      "aliases": [
+        "puerto boyaca"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "SOCHA",
+      "normalized": "socha",
+      "aliases": [
+        "socha"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "COCORNÁ",
+      "normalized": "cocorna",
+      "aliases": [
+        "cocorna"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "CAÑASGORDAS",
+      "normalized": "canasgordas",
+      "aliases": [
+        "canasgordas"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "LA UVITA",
+      "normalized": "la uvita",
+      "aliases": [
+        "la uvita"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "PONEDERA",
+      "normalized": "ponedera",
+      "aliases": [
+        "ponedera"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "SANTA CATALINA",
+      "normalized": "santa catalina",
+      "aliases": [
+        "santa catalina",
+        "sta catalina"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "GALAPA",
+      "normalized": "galapa",
+      "aliases": [
+        "galapa"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "ARAUCA",
+      "normalized": "arauca",
+      "aliases": [
+        "arauca"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "GÓMEZ PLATA",
+      "normalized": "gomez plata",
+      "aliases": [
+        "gomez plata"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "NORCASIA",
+      "normalized": "norcasia",
+      "aliases": [
+        "norcasia"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "ALMEIDA",
+      "normalized": "almeida",
+      "aliases": [
+        "almeida"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "PUERTO BERRÍO",
+      "normalized": "puerto berrio",
+      "aliases": [
+        "puerto berrio"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "LIBORINA",
+      "normalized": "liborina",
+      "aliases": [
+        "liborina"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "HELICONIA",
+      "normalized": "heliconia",
+      "aliases": [
+        "eliconia",
+        "heliconia"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "SAN JERÓNIMO",
+      "normalized": "san jeronimo",
+      "aliases": [
+        "san jeronimo",
+        "sn jeronimo"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "VENECIA",
+      "normalized": "venecia",
+      "aliases": [
+        "venecia"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "SAN EDUARDO",
+      "normalized": "san eduardo",
+      "aliases": [
+        "san eduardo",
+        "sn eduardo"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "SOATÁ",
+      "normalized": "soata",
+      "aliases": [
+        "soata"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "LURUACO",
+      "normalized": "luruaco",
+      "aliases": [
+        "luruaco"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "SARAVENA",
+      "normalized": "saravena",
+      "aliases": [
+        "saravena"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "SAN CRISTÓBAL",
+      "normalized": "san cristobal",
+      "aliases": [
+        "san cristobal",
+        "sn cristobal"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "ARROYOHONDO",
+      "normalized": "arroyohondo",
+      "aliases": [
+        "arroyohondo"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "SANTA SOFÍA",
+      "normalized": "santa sofia",
+      "aliases": [
+        "santa sofia",
+        "sta sofia"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "MAGANGUÉ",
+      "normalized": "magangue",
+      "aliases": [
+        "magangue"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "SUAN",
+      "normalized": "suan",
+      "aliases": [
+        "suan"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "SEGOVIA",
+      "normalized": "segovia",
+      "aliases": [
+        "segovia"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "BARRANCO DE LOBA",
+      "normalized": "barranco de loba",
+      "aliases": [
+        "barranco de loba"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "MOMPÓS",
+      "normalized": "mompos",
+      "aliases": [
+        "mompos"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "CÓRDOBA",
+      "normalized": "cordoba",
+      "aliases": [
+        "cordoba"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "CALAMAR",
+      "normalized": "calamar",
+      "aliases": [
+        "calamar"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "CARAMANTA",
+      "normalized": "caramanta",
+      "aliases": [
+        "caramanta"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "NUEVO COLÓN",
+      "normalized": "nuevo colon",
+      "aliases": [
+        "nuevo colon"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "BETÉITIVA",
+      "normalized": "beteitiva",
+      "aliases": [
+        "beteitiva"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "MARMATO",
+      "normalized": "marmato",
+      "aliases": [
+        "marmato"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "SAN ESTANISLAO",
+      "normalized": "san estanislao",
+      "aliases": [
+        "san estanislao",
+        "sn estanislao"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "VILLA DE LEYVA",
+      "normalized": "villa de leyva",
+      "aliases": [
+        "villa de leyva"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "SIMITÍ",
+      "normalized": "simiti",
+      "aliases": [
+        "simiti"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "ZETAQUIRA",
+      "normalized": "zetaquira",
+      "aliases": [
+        "zetaquira"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "GUARNE",
+      "normalized": "guarne",
+      "aliases": [
+        "guarne"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "MARINILLA",
+      "normalized": "marinilla",
+      "aliases": [
+        "marinilla"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "EL COCUY",
+      "normalized": "el cocuy",
+      "aliases": [
+        "el cocuy"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "SAN PEDRO",
+      "normalized": "san pedro",
+      "aliases": [
+        "san pedro",
+        "sn pedro"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "SIACHOQUE",
+      "normalized": "siachoque",
+      "aliases": [
+        "siachoque"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "PINILLOS",
+      "normalized": "pinillos",
+      "aliases": [
+        "pinillos"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "YONDÓ",
+      "normalized": "yondo",
+      "aliases": [
+        "yondo"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "EL ENCANTO",
+      "normalized": "el encanto",
+      "aliases": [
+        "el encanto"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "TENZA",
+      "normalized": "tenza",
+      "aliases": [
+        "tenza"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "MUZO",
+      "normalized": "muzo",
+      "aliases": [
+        "muzo"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "TINJACÁ",
+      "normalized": "tinjaca",
+      "aliases": [
+        "tinjaca"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "SATIVASUR",
+      "normalized": "sativasur",
+      "aliases": [
+        "sativasur"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "SANTO TOMÁS",
+      "normalized": "santo tomas",
+      "aliases": [
+        "santo tomas"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "ARAUQUITA",
+      "normalized": "arauquita",
+      "aliases": [
+        "arauquita"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "CORRALES",
+      "normalized": "corrales",
+      "aliases": [
+        "corrales"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "CRAVO NORTE",
+      "normalized": "cravo norte",
+      "aliases": [
+        "cravo norte"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "EL SANTUARIO",
+      "normalized": "el santuario",
+      "aliases": [
+        "el santuario"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "FLORESTA",
+      "normalized": "floresta",
+      "aliases": [
+        "floresta"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "UMBITA",
+      "normalized": "umbita",
+      "aliases": [
+        "umbita"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "MONGUA",
+      "normalized": "mongua",
+      "aliases": [
+        "mongua"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "SOLEDAD",
+      "normalized": "soledad",
+      "aliases": [
+        "soledad"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "GARAGOA",
+      "normalized": "garagoa",
+      "aliases": [
+        "garagoa"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "SABOYÁ",
+      "normalized": "saboya",
+      "aliases": [
+        "saboya"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "MUTATÁ",
+      "normalized": "mutata",
+      "aliases": [
+        "mutata"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "ALEJANDRÍA",
+      "normalized": "alejandria",
+      "aliases": [
+        "alejandria"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "AQUITANIA",
+      "normalized": "aquitania",
+      "aliases": [
+        "aquitania"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "SAN RAFAEL",
+      "normalized": "san rafael",
+      "aliases": [
+        "san rafael",
+        "sn rafael"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "SAMACÁ",
+      "normalized": "samaca",
+      "aliases": [
+        "samaca"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "PESCA",
+      "normalized": "pesca",
+      "aliases": [
+        "pesca"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "TARSO",
+      "normalized": "tarso",
+      "aliases": [
+        "tarso"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "JUAN DE ACOSTA",
+      "normalized": "juan de acosta",
+      "aliases": [
+        "juan de acosta"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "GRANADA",
+      "normalized": "granada",
+      "aliases": [
+        "granada"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "CAREPA",
+      "normalized": "carepa",
+      "aliases": [
+        "carepa"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "CANTAGALLO",
+      "normalized": "cantagallo",
+      "aliases": [
+        "cantagallo"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "RÍO VIEJO",
+      "normalized": "rio viejo",
+      "aliases": [
+        "rio viejo"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "CÁCERES",
+      "normalized": "caceres",
+      "aliases": [
+        "caceres"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "PANQUEBA",
+      "normalized": "panqueba",
+      "aliases": [
+        "panqueba"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "BELALCÁZAR",
+      "normalized": "belalcazar",
+      "aliases": [
+        "belalcazar"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "VILLANUEVA",
+      "normalized": "villanueva",
+      "aliases": [
+        "villanueva"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "URRAO",
+      "normalized": "urrao",
+      "aliases": [
+        "urrao"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "FORTUL",
+      "normalized": "fortul",
+      "aliases": [
+        "fortul"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "BURITICÁ",
+      "normalized": "buritica",
+      "aliases": [
+        "buritica"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "PALMAR DE VARELA",
+      "normalized": "palmar de varela",
+      "aliases": [
+        "palmar de varela"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "ANDES",
+      "normalized": "andes",
+      "aliases": [
+        "andes"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "TOTA",
+      "normalized": "tota",
+      "aliases": [
+        "tota"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "CAUCASIA",
+      "normalized": "caucasia",
+      "aliases": [
+        "caucasia"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "SABANAGRANDE",
+      "normalized": "sabanagrande",
+      "aliases": [
+        "sabanagrande"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "RÁQUIRA",
+      "normalized": "raquira",
+      "aliases": [
+        "raquira"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "CHÍQUIZA",
+      "normalized": "chiquiza",
+      "aliases": [
+        "chiquiza"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "MONGUÍ",
+      "normalized": "mongui",
+      "aliases": [
+        "mongui"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "SAN ROQUE",
+      "normalized": "san roque",
+      "aliases": [
+        "san roque",
+        "sn roque"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "BOGOTÁ",
+      "normalized": "bogota",
+      "aliases": [
+        "bogota"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "CISNEROS",
+      "normalized": "cisneros",
+      "aliases": [
+        "cisneros"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "SANTA BÁRBARA",
+      "normalized": "santa barbara",
+      "aliases": [
+        "santa barbara",
+        "sta barbara"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "COVARACHÍA",
+      "normalized": "covarachia",
+      "aliases": [
+        "covarachia"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "TURBACO",
+      "normalized": "turbaco",
+      "aliases": [
+        "turbaco"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "CHIQUINQUIRÁ",
+      "normalized": "chiquinquira",
+      "aliases": [
+        "chiquinquira"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "MACANAL",
+      "normalized": "macanal",
+      "aliases": [
+        "macanal"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "OLAYA",
+      "normalized": "olaya",
+      "aliases": [
+        "olaya"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "SORA",
+      "normalized": "sora",
+      "aliases": [
+        "sora"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "CALDAS",
+      "normalized": "caldas",
+      "aliases": [
+        "caldas"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "CAMPO DE LA CRUZ",
+      "normalized": "campo de la cruz",
+      "aliases": [
+        "campo de la cruz"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "PEÑOL",
+      "normalized": "penol",
+      "aliases": [
+        "penol"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "SANTA ROSA",
+      "normalized": "santa rosa",
+      "aliases": [
+        "santa rosa",
+        "sta rosa"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "TITIRIBÍ",
+      "normalized": "titiribi",
+      "aliases": [
+        "titiribi"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "PAIPA",
+      "normalized": "paipa",
+      "aliases": [
+        "paipa"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "EL PEÑÓN",
+      "normalized": "el penon",
+      "aliases": [
+        "el penon"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "LA CAPILLA",
+      "normalized": "la capilla",
+      "aliases": [
+        "la capilla"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "BETULIA",
+      "normalized": "betulia",
+      "aliases": [
+        "betulia"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "AMAGÁ",
+      "normalized": "amaga",
+      "aliases": [
+        "amaga"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "TARAZÁ",
+      "normalized": "taraza",
+      "aliases": [
+        "taraza"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "BELÉN",
+      "normalized": "belen",
+      "aliases": [
+        "belen"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "PISBA",
+      "normalized": "pisba",
+      "aliases": [
+        "pisba"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "RIONEGRO",
+      "normalized": "rionegro",
+      "aliases": [
+        "rionegro"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "SANTA ROSA DE VITERBO",
+      "normalized": "santa rosa de viterbo",
+      "aliases": [
+        "santa rosa de viterbo",
+        "sta rosa de viterbo"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "GUATEQUE",
+      "normalized": "guateque",
+      "aliases": [
+        "guateque"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "EL ESPINO",
+      "normalized": "el espino",
+      "aliases": [
+        "el espino"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "HISPANIA",
+      "normalized": "hispania",
+      "aliases": [
+        "hispania",
+        "ispania"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "SABANETA",
+      "normalized": "sabaneta",
+      "aliases": [
+        "sabaneta"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "SAN VICENTE",
+      "normalized": "san vicente",
+      "aliases": [
+        "san vicente",
+        "sn vicente"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "SUTATENZA",
+      "normalized": "sutatenza",
+      "aliases": [
+        "sutatenza"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "SOPLAVIENTO",
+      "normalized": "soplaviento",
+      "aliases": [
+        "soplaviento"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "TURBO",
+      "normalized": "turbo",
+      "aliases": [
+        "turbo"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "BELLO",
+      "normalized": "bello",
+      "aliases": [
+        "bello"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "TUTAZÁ",
+      "normalized": "tutaza",
+      "aliases": [
+        "tutaza"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "SAN MATEO",
+      "normalized": "san mateo",
+      "aliases": [
+        "san mateo",
+        "sn mateo"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "CHIVATÁ",
+      "normalized": "chivata",
+      "aliases": [
+        "chivata"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "SANTO DOMINGO",
+      "normalized": "santo domingo",
+      "aliases": [
+        "santo domingo"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "YALÍ",
+      "normalized": "yali",
+      "aliases": [
+        "yali"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "BARANOA",
+      "normalized": "baranoa",
+      "aliases": [
+        "baranoa"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "SAN LUIS DE GACENO",
+      "normalized": "san luis de gaceno",
+      "aliases": [
+        "san luis de gaceno",
+        "sn luis de gaceno"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "SAN JOSÉ DE PARE",
+      "normalized": "san jose de pare",
+      "aliases": [
+        "san jose de pare",
+        "sn jose de pare"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "POLONUEVO",
+      "normalized": "polonuevo",
+      "aliases": [
+        "polonuevo"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "TUTA",
+      "normalized": "tuta",
+      "aliases": [
+        "tuta"
+      ],
+      "dimension": "municipio"
+    },
+    {
+      "canonical": "Mixta",
+      "normalized": "mixta",
+      "aliases": [
+        "mixta"
+      ],
+      "dimension": "naturaleza"
+    },
+    {
+      "canonical": "Privada",
+      "normalized": "privada",
+      "aliases": [
+        "privada"
+      ],
+      "dimension": "naturaleza"
+    },
+    {
+      "canonical": "Pública",
+      "normalized": "publica",
+      "aliases": [
+        "publica"
+      ],
+      "dimension": "naturaleza"
+    },
+    {
+      "canonical": "Amazonas",
+      "normalized": "amazonas",
+      "aliases": [
+        "amazonas"
+      ],
+      "dimension": "departamento"
+    },
+    {
+      "canonical": "Antioquia",
+      "normalized": "antioquia",
+      "aliases": [
+        "antioquia"
+      ],
+      "dimension": "departamento"
+    },
+    {
+      "canonical": "Arauca",
+      "normalized": "arauca",
+      "aliases": [
+        "arauca"
+      ],
+      "dimension": "departamento"
+    },
+    {
+      "canonical": "Atlántico",
+      "normalized": "atlantico",
+      "aliases": [
+        "atlantico"
+      ],
+      "dimension": "departamento"
+    },
+    {
+      "canonical": "Barranquilla",
+      "normalized": "barranquilla",
+      "aliases": [
+        "barranquilla"
+      ],
+      "dimension": "departamento"
+    },
+    {
+      "canonical": "Bogotá D.C",
+      "normalized": "bogota d.c",
+      "aliases": [
+        "bogota",
+        "bogota d.c",
+        "bogota dc"
+      ],
+      "dimension": "departamento"
+    },
+    {
+      "canonical": "Bolívar",
+      "normalized": "bolivar",
+      "aliases": [
+        "bolivar"
+      ],
+      "dimension": "departamento"
+    },
+    {
+      "canonical": "Boyacá",
+      "normalized": "boyaca",
+      "aliases": [
+        "boyaca"
+      ],
+      "dimension": "departamento"
+    },
+    {
+      "canonical": "Buenaventura",
+      "normalized": "buenaventura",
+      "aliases": [
+        "buenaventura"
+      ],
+      "dimension": "departamento"
+    },
+    {
+      "canonical": "Caldas",
+      "normalized": "caldas",
+      "aliases": [
+        "caldas"
+      ],
+      "dimension": "departamento"
+    },
+    {
+      "canonical": "1",
+      "normalized": "1",
+      "aliases": [
+        "1"
+      ],
+      "dimension": "num_nivel_atencion"
+    },
+    {
+      "canonical": "2",
+      "normalized": "2",
+      "aliases": [
+        "2"
+      ],
+      "dimension": "num_nivel_atencion"
+    },
+    {
+      "canonical": "3",
+      "normalized": "3",
+      "aliases": [
+        "3"
+      ],
+      "dimension": "num_nivel_atencion"
+    },
+    {
+      "canonical": "AMBULANCIAS",
+      "normalized": "ambulancias",
+      "aliases": [
+        "ambulancias"
+      ],
+      "dimension": "nom_grupo_capacidad"
+    },
+    {
+      "canonical": "CAMAS",
+      "normalized": "camas",
+      "aliases": [
+        "camas"
+      ],
+      "dimension": "nom_grupo_capacidad"
+    },
+    {
+      "canonical": "CAMILLAS",
+      "normalized": "camillas",
+      "aliases": [
+        "camillas"
+      ],
+      "dimension": "nom_grupo_capacidad"
+    },
+    {
+      "canonical": "CONSULTORIOS",
+      "normalized": "consultorios",
+      "aliases": [
+        "consultorios"
+      ],
+      "dimension": "nom_grupo_capacidad"
+    },
+    {
+      "canonical": "SALAS",
+      "normalized": "salas",
+      "aliases": [
+        "salas"
+      ],
+      "dimension": "nom_grupo_capacidad"
+    },
+    {
+      "canonical": "SILLAS",
+      "normalized": "sillas",
+      "aliases": [
+        "sillas"
+      ],
+      "dimension": "nom_grupo_capacidad"
+    },
+    {
+      "canonical": "UNIDAD MOVIL",
+      "normalized": "unidad movil",
+      "aliases": [
+        "unidad movil"
+      ],
+      "dimension": "nom_grupo_capacidad"
+    },
+    {
+      "canonical": "Adultos",
+      "normalized": "adultos",
+      "aliases": [
+        "adultos"
+      ],
+      "dimension": "nom_descripcion_capacidad"
+    },
+    {
+      "canonical": "Atención del Parto",
+      "normalized": "atencion del parto",
+      "aliases": [
+        "atencion del parto"
+      ],
+      "dimension": "nom_descripcion_capacidad"
+    },
+    {
+      "canonical": "Básica",
+      "normalized": "basica",
+      "aliases": [
+        "basica"
+      ],
+      "dimension": "nom_descripcion_capacidad"
+    },
+    {
+      "canonical": "Consulta Externa",
+      "normalized": "consulta externa",
+      "aliases": [
+        "consulta externa"
+      ],
+      "dimension": "nom_descripcion_capacidad"
+    },
+    {
+      "canonical": "Cuidado Intensivo Adulto",
+      "normalized": "cuidado intensivo adulto",
+      "aliases": [
+        "cuidado intensivo adulto"
+      ],
+      "dimension": "nom_descripcion_capacidad"
+    },
+    {
+      "canonical": "Cuidado Intensivo Neonatal",
+      "normalized": "cuidado intensivo neonatal",
+      "aliases": [
+        "cuidado intensivo neonatal"
+      ],
+      "dimension": "nom_descripcion_capacidad"
+    },
+    {
+      "canonical": "Cuidado Intensivo Pediátrico",
+      "normalized": "cuidado intensivo pediatrico",
+      "aliases": [
+        "cuidado intensivo pediatrico"
+      ],
+      "dimension": "nom_descripcion_capacidad"
+    },
+    {
+      "canonical": "Cuidado Intermedio Adulto",
+      "normalized": "cuidado intermedio adulto",
+      "aliases": [
+        "cuidado intermedio adulto"
+      ],
+      "dimension": "nom_descripcion_capacidad"
+    },
+    {
+      "canonical": "Cuidado Intermedio Neonatal",
+      "normalized": "cuidado intermedio neonatal",
+      "aliases": [
+        "cuidado intermedio neonatal"
+      ],
+      "dimension": "nom_descripcion_capacidad"
+    },
+    {
+      "canonical": "Cuidado Intermedio Pediátrico",
+      "normalized": "cuidado intermedio pediatrico",
+      "aliases": [
+        "cuidado intermedio pediatrico"
+      ],
+      "dimension": "nom_descripcion_capacidad"
+    },
+    {
+      "canonical": "Cuidado básico neonatal",
+      "normalized": "cuidado basico neonatal",
+      "aliases": [
+        "cuidado basico neonatal"
+      ],
+      "dimension": "nom_descripcion_capacidad"
+    },
+    {
+      "canonical": "Cuna Básico Neonatal",
+      "normalized": "cuna basico neonatal",
+      "aliases": [
+        "cuna basico neonatal"
+      ],
+      "dimension": "nom_descripcion_capacidad"
+    },
+    {
+      "canonical": "Cuna Intensiva Neonatal",
+      "normalized": "cuna intensiva neonatal",
+      "aliases": [
+        "cuna intensiva neonatal"
+      ],
+      "dimension": "nom_descripcion_capacidad"
+    },
+    {
+      "canonical": "Cuna Intensiva Pediátrica",
+      "normalized": "cuna intensiva pediatrica",
+      "aliases": [
+        "cuna intensiva pediatrica"
+      ],
+      "dimension": "nom_descripcion_capacidad"
+    },
+    {
+      "canonical": "Cuna Intermedia Neonatal",
+      "normalized": "cuna intermedia neonatal",
+      "aliases": [
+        "cuna intermedia neonatal"
+      ],
+      "dimension": "nom_descripcion_capacidad"
+    },
+    {
+      "canonical": "Cuna Intermedia Pediátrica",
+      "normalized": "cuna intermedia pediatrica",
+      "aliases": [
+        "cuna intermedia pediatrica"
+      ],
+      "dimension": "nom_descripcion_capacidad"
+    },
+    {
+      "canonical": "Farmacodependencia",
+      "normalized": "farmacodependencia",
+      "aliases": [
+        "farmacodependencia"
+      ],
+      "dimension": "nom_descripcion_capacidad"
+    },
+    {
+      "canonical": "Incubadora Básico Neonatal",
+      "normalized": "incubadora basico neonatal",
+      "aliases": [
+        "incubadora basico neonatal"
+      ],
+      "dimension": "nom_descripcion_capacidad"
+    },
+    {
+      "canonical": "Incubadora Intensiva Neonatal",
+      "normalized": "incubadora intensiva neonatal",
+      "aliases": [
+        "incubadora intensiva neonatal"
+      ],
+      "dimension": "nom_descripcion_capacidad"
+    },
+    {
+      "canonical": "Incubadora Intermedia Neonatal",
+      "normalized": "incubadora intermedia neonatal",
+      "aliases": [
+        "incubadora intermedia neonatal"
+      ],
+      "dimension": "nom_descripcion_capacidad"
+    },
+    {
+      "canonical": "Institución Paciente Crónico",
+      "normalized": "institucion paciente cronico",
+      "aliases": [
+        "institucion paciente cronico"
+      ],
+      "dimension": "nom_descripcion_capacidad"
+    },
+    {
+      "canonical": "Intensiva Adultos",
+      "normalized": "intensiva adultos",
+      "aliases": [
+        "intensiva adultos"
+      ],
+      "dimension": "nom_descripcion_capacidad"
+    },
+    {
+      "canonical": "Intensiva Pediátrica",
+      "normalized": "intensiva pediatrica",
+      "aliases": [
+        "intensiva pediatrica"
+      ],
+      "dimension": "nom_descripcion_capacidad"
+    },
+    {
+      "canonical": "Intensiva Quemado Adulto",
+      "normalized": "intensiva quemado adulto",
+      "aliases": [
+        "intensiva quemado adulto"
+      ],
+      "dimension": "nom_descripcion_capacidad"
+    },
+    {
+      "canonical": "Intensiva Quemado pediátrica",
+      "normalized": "intensiva quemado pediatrica",
+      "aliases": [
+        "intensiva quemado pediatrica"
+      ],
+      "dimension": "nom_descripcion_capacidad"
+    },
+    {
+      "canonical": "Intermedia Adultos",
+      "normalized": "intermedia adultos",
+      "aliases": [
+        "intermedia adultos"
+      ],
+      "dimension": "nom_descripcion_capacidad"
+    },
+    {
+      "canonical": "Intermedia Pediátrica",
+      "normalized": "intermedia pediatrica",
+      "aliases": [
+        "intermedia pediatrica"
+      ],
+      "dimension": "nom_descripcion_capacidad"
+    },
+    {
+      "canonical": "Medicalizada",
+      "normalized": "medicalizada",
+      "aliases": [
+        "medicalizada"
+      ],
+      "dimension": "nom_descripcion_capacidad"
+    },
+    {
+      "canonical": "Observación Adultos Hombres",
+      "normalized": "observacion adultos hombres",
+      "aliases": [
+        "observacion adultos hombres",
+        "observacion adultos ombres"
+      ],
+      "dimension": "nom_descripcion_capacidad"
+    },
+    {
+      "canonical": "Observación Adultos Mujeres",
+      "normalized": "observacion adultos mujeres",
+      "aliases": [
+        "observacion adultos mujeres"
+      ],
+      "dimension": "nom_descripcion_capacidad"
+    },
+    {
+      "canonical": "Observación Pediátrica",
+      "normalized": "observacion pediatrica",
+      "aliases": [
+        "observacion pediatrica"
+      ],
+      "dimension": "nom_descripcion_capacidad"
+    },
+    {
+      "canonical": "Obstetricia",
+      "normalized": "obstetricia",
+      "aliases": [
+        "obstetricia"
+      ],
+      "dimension": "nom_descripcion_capacidad"
+    },
+    {
+      "canonical": "Otras patologías",
+      "normalized": "otras patologias",
+      "aliases": [
+        "otras patologias"
+      ],
+      "dimension": "nom_descripcion_capacidad"
+    },
+    {
+      "canonical": "Paciente crónico con ventilador",
+      "normalized": "paciente cronico con ventilador",
+      "aliases": [
+        "paciente cronico con ventilador"
+      ],
+      "dimension": "nom_descripcion_capacidad"
+    },
+    {
+      "canonical": "Paciente crónico sin ventilador",
+      "normalized": "paciente cronico sin ventilador",
+      "aliases": [
+        "paciente cronico sin ventilador"
+      ],
+      "dimension": "nom_descripcion_capacidad"
+    },
+    {
+      "canonical": "Partos",
+      "normalized": "partos",
+      "aliases": [
+        "partos"
+      ],
+      "dimension": "nom_descripcion_capacidad"
+    },
+    {
+      "canonical": "Pediátrica",
+      "normalized": "pediatrica",
+      "aliases": [
+        "pediatrica"
+      ],
+      "dimension": "nom_descripcion_capacidad"
+    },
+    {
+      "canonical": "Procedimientos",
+      "normalized": "procedimientos",
+      "aliases": [
+        "procedimientos"
+      ],
+      "dimension": "nom_descripcion_capacidad"
+    },
+    {
+      "canonical": "Psiquiatría",
+      "normalized": "psiquiatria",
+      "aliases": [
+        "psiquiatria"
+      ],
+      "dimension": "nom_descripcion_capacidad"
+    },
+    {
+      "canonical": "Quirófano",
+      "normalized": "quirofano",
+      "aliases": [
+        "quirofano"
+      ],
+      "dimension": "nom_descripcion_capacidad"
+    },
+    {
+      "canonical": "SPA",
+      "normalized": "spa",
+      "aliases": [
+        "spa"
+      ],
+      "dimension": "nom_descripcion_capacidad"
+    },
+    {
+      "canonical": "SPA Adultos",
+      "normalized": "spa adultos",
+      "aliases": [
+        "spa adultos"
+      ],
+      "dimension": "nom_descripcion_capacidad"
+    },
+    {
+      "canonical": "SPA Básico Adultos",
+      "normalized": "spa basico adultos",
+      "aliases": [
+        "spa basico adultos"
+      ],
+      "dimension": "nom_descripcion_capacidad"
+    },
+    {
+      "canonical": "SPA Básico Pediátricos",
+      "normalized": "spa basico pediatricos",
+      "aliases": [
+        "spa basico pediatricos"
+      ],
+      "dimension": "nom_descripcion_capacidad"
+    },
+    {
+      "canonical": "SPA Pediátricas",
+      "normalized": "spa pediatricas",
+      "aliases": [
+        "spa pediatricas"
+      ],
+      "dimension": "nom_descripcion_capacidad"
+    },
+    {
+      "canonical": "Sala de Cirugía",
+      "normalized": "sala de cirugia",
+      "aliases": [
+        "sala de cirugia"
+      ],
+      "dimension": "nom_descripcion_capacidad"
+    },
+    {
+      "canonical": "Sala de Radioterapia",
+      "normalized": "sala de radioterapia",
+      "aliases": [
+        "sala de radioterapia"
+      ],
+      "dimension": "nom_descripcion_capacidad"
+    },
+    {
+      "canonical": "Salud Mental",
+      "normalized": "salud mental",
+      "aliases": [
+        "salud mental"
+      ],
+      "dimension": "nom_descripcion_capacidad"
+    },
+    {
+      "canonical": "Salud Mental Adulto",
+      "normalized": "salud mental adulto",
+      "aliases": [
+        "salud mental adulto"
+      ],
+      "dimension": "nom_descripcion_capacidad"
+    },
+    {
+      "canonical": "Salud Mental Pediátrico",
+      "normalized": "salud mental pediatrico",
+      "aliases": [
+        "salud mental pediatrico"
+      ],
+      "dimension": "nom_descripcion_capacidad"
+    },
+    {
+      "canonical": "Sillas de Hemodiálisis",
+      "normalized": "sillas de hemodialisis",
+      "aliases": [
+        "sillas de emodialisis",
+        "sillas de hemodialisis"
+      ],
+      "dimension": "nom_descripcion_capacidad"
+    },
+    {
+      "canonical": "Sillas de Quimioterapia",
+      "normalized": "sillas de quimioterapia",
+      "aliases": [
+        "sillas de quimioterapia"
+      ],
+      "dimension": "nom_descripcion_capacidad"
+    },
+    {
+      "canonical": "TPR",
+      "normalized": "tpr",
+      "aliases": [
+        "tpr"
+      ],
+      "dimension": "nom_descripcion_capacidad"
+    },
+    {
+      "canonical": "Transplante de progenitores hematopoyeticos",
+      "normalized": "transplante de progenitores hematopoyeticos",
+      "aliases": [
+        "transplante de progenitores ematopoyeticos",
+        "transplante de progenitores hematopoyeticos"
+      ],
+      "dimension": "nom_descripcion_capacidad"
+    },
+    {
+      "canonical": "Unidad Móvil",
+      "normalized": "unidad movil",
+      "aliases": [
+        "unidad movil"
+      ],
+      "dimension": "nom_descripcion_capacidad"
+    },
+    {
+      "canonical": "Unidad de Quemados Adulto",
+      "normalized": "unidad de quemados adulto",
+      "aliases": [
+        "unidad de quemados adulto"
+      ],
+      "dimension": "nom_descripcion_capacidad"
+    },
+    {
+      "canonical": "Unidad de Quemados Pediátrico",
+      "normalized": "unidad de quemados pediatrico",
+      "aliases": [
+        "unidad de quemados pediatrico"
+      ],
+      "dimension": "nom_descripcion_capacidad"
+    },
+    {
+      "canonical": "Urgencias",
+      "normalized": "urgencias",
+      "aliases": [
+        "urgencias"
+      ],
+      "dimension": "nom_descripcion_capacidad"
+    }
+  ],
+  "ambiguous": {
+    "boyaca": [
+      "municipio",
+      "departamento"
+    ],
+    "buenaventura": [
+      "municipio",
+      "departamento"
+    ],
+    "barranquilla": [
+      "municipio",
+      "departamento"
+    ],
+    "arauca": [
+      "municipio",
+      "departamento"
+    ],
+    "caldas": [
+      "municipio",
+      "departamento"
+    ],
+    "unidad movil": [
+      "nom_grupo_capacidad",
+      "nom_descripcion_capacidad"
+    ]
+  }
+}
